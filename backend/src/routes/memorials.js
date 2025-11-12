@@ -11,6 +11,7 @@ const { parseMemorialPayload } = require("../validators/memorialPayload");
 
 const memorialRouter = express.Router();
 
+// Build MongoDB query options from URL parameters like search, limit, sortBy, etc.
 function buildListQueryOptions(query) {
     const limit = Math.max(0, parseInt(query.limit) || 0) || undefined;
     const includeUnapproved = parseBoolean(query.includeUnapproved) === true;
@@ -19,6 +20,7 @@ function buildListQueryOptions(query) {
 
     const filter = {};
 
+    // By default only show approved memorials, unless explicitly requesting unapproved ones (admin only).
     if (!includeUnapproved) {
         filter.approved = true;
     } else if (typeof approvedFilter === "boolean") {
@@ -29,6 +31,7 @@ function buildListQueryOptions(query) {
         filter.searchText = { $regex: escapeRegex(searchTerm), $options: "i" };
     }
 
+    // Build sort order based on the sortBy parameter, defaulting to most recently published.
     const sortDirection = query.sortDirection === "asc" ? 1 : -1;
     const sortOptions = {
         createdAt: { createdAt: sortDirection },
@@ -47,11 +50,13 @@ function buildListQueryOptions(query) {
     return { filter, includeUnapproved, limit, sort };
 }
 
+// Apply updates to a memorial document and unset any fields that should be removed.
 function applyUpdates(memorial, updates, unsetFields) {
     Object.assign(memorial, updates);
     unsetFields.forEach((field) => (memorial[field] = undefined));
 }
 
+// GET /api/memorials/self - Fetch all memorials created by the logged-in user.
 memorialRouter.get("/self", requireAuth, async (req, res) => {
     try {
         const memorials = await Memorial.find({ createdBy: req.user.sub })
@@ -65,6 +70,7 @@ memorialRouter.get("/self", requireAuth, async (req, res) => {
     }
 });
 
+// GET /api/memorials/:memorialId - Fetch a single memorial by ID. Unapproved memorials are only visible to their creator or admins.
 memorialRouter.get("/:memorialId", async (req, res) => {
     const authPayload = authenticateRequest(req);
 
@@ -79,6 +85,7 @@ memorialRouter.get("/:memorialId", async (req, res) => {
         const isAdmin = authPayload?.isAdmin;
         const isOwner = authPayload?.sub === String(memorial.createdBy);
 
+        // Hide unapproved memorials from non-owners and non-admins.
         if (!memorial.approved && !isAdmin && !isOwner) {
             return res.status(404).json({ error: "Memorial not found" });
         }
@@ -86,6 +93,7 @@ memorialRouter.get("/:memorialId", async (req, res) => {
         return res.json({ memorial });
     } catch (error) {
         console.error("Failed to fetch memorial:", error);
+        // CastError means the ID format is invalid (not a valid MongoDB ObjectId).
         if (error?.name === "CastError") {
             return res.status(400).json({ error: "Invalid memorial id" });
         }

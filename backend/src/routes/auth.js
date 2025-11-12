@@ -10,6 +10,7 @@ const {
 
 const authRouter = express.Router();
 
+// POST /api/auth/signup - Create a new user account and return a token for immediate login.
 authRouter.post("/signup", async (req, res) => {
     const { email, password, name } = req.body;
 
@@ -20,6 +21,7 @@ authRouter.post("/signup", async (req, res) => {
     }
 
     try {
+        // Normalize the email to lowercase to prevent duplicate accounts with different casing.
         const normalizedEmail = email.trim().toLowerCase();
 
         // Check if user already exists
@@ -39,6 +41,7 @@ authRouter.post("/signup", async (req, res) => {
 
         const token = generateToken(user);
 
+        // Return the user data (without the password hash) and a token they can use for subsequent requests.
         return res.status(201).json({
             user: {
                 id: user.id,
@@ -54,6 +57,7 @@ authRouter.post("/signup", async (req, res) => {
     }
 });
 
+// POST /api/auth/login - Verify credentials and return a token if the email and password are correct.
 authRouter.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
@@ -67,6 +71,7 @@ authRouter.post("/login", async (req, res) => {
         const normalizedEmail = email.trim().toLowerCase();
         const user = await User.findOne({ email: normalizedEmail });
 
+        // Return a generic error message whether the email or password is wrong to avoid revealing which accounts exist.
         if (!user || !verifyPassword(password, user.passwordHash)) {
             return res.status(401).json({ error: "Invalid email or password" });
         }

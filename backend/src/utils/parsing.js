@@ -15,10 +15,12 @@ function isNonEmptyString(value) {
     return typeof value === "string" && value.trim().length > 0;
 }
 
+// Convert a value to a trimmed string, or return an empty string if the value isn't a string.
 function normalizeString(value) {
     return typeof value === "string" ? value.trim() : "";
 }
 
+// Convert a value to a Date object, returning undefined if the value is missing or can't be parsed as a valid date.
 function normalizeDate(value) {
     if (!value) {
         return undefined;
