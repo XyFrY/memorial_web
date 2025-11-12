@@ -165,73 +165,134 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Login Page Section
-document.getElementById("loginForm").addEventListener("submit", (e) => {
-            e.preventDefault();
+document.addEventListener("DOMContentLoaded", () => {
+    const loginForm = document.getElementById("loginForm");
+    if (!loginForm) return;
 
-            const email = document.getElementById("email").value.trim();
-            const password = document.getElementById("password").value.trim();
+    loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
 
-            if (!email || !password) {
-                alert("Please enter both email and password.");
-                return;
-            }
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value.trim();
 
-            console.log("Logging in:", { email, password });
+        if (!email || !password) {
+            alert("Please enter both email and password.");
+            return;
+        }
 
-            window.location.href = "index.html";
-        });
+        console.log("Logging in:", { email, password });
+
+        window.location.href = "index.html";
+    });
+});
 
 // Signup Page Section
-   document.getElementById("signupForm").addEventListener("submit", (e) => {
-            e.preventDefault();
+document.addEventListener("DOMContentLoaded", () => {
+    const signupForm = document.getElementById("signupForm");
+    if (!signupForm) return;
 
-            const name = document.getElementById("name").value.trim();
-            const email = document.getElementById("email").value.trim();
-            const password = document.getElementById("password").value.trim();
-            const confirmPassword = document.getElementById("confirmPassword").value.trim();
+    const errorAlert = document.getElementById("errorAlert");
+    const errorMessage = document.getElementById("errorMessage");
+    const passwordInput = document.getElementById("password");
+    const confirmPasswordInput = document.getElementById("confirmPassword");
+    const passwordMatchFeedback = document.getElementById("passwordMatchFeedback");
 
-            if (!name || !email || !password || !confirmPassword) {
-                alert("Please fill out all fields.");
-                return;
-            }
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorAlert.classList.remove("d-none");
+        // Scroll to top to show error
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 
+    function hideError() {
+        errorAlert.classList.add("d-none");
+        errorMessage.textContent = "";
+    }
+
+    function checkPasswordMatch() {
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+
+        // Only show feedback if confirm password field has content
+        if (confirmPassword.length > 0) {
             if (password !== confirmPassword) {
-                alert("Passwords do not match. Please try again.");
-                return;
+                confirmPasswordInput.classList.add("is-invalid");
+                confirmPasswordInput.classList.remove("is-valid");
+                passwordMatchFeedback.textContent = "Passwords do not match";
+                passwordMatchFeedback.style.display = "block";
+            } else {
+                confirmPasswordInput.classList.remove("is-invalid");
+                confirmPasswordInput.classList.add("is-valid");
+                passwordMatchFeedback.textContent = "Passwords match";
+                passwordMatchFeedback.classList.remove("invalid-feedback");
+                passwordMatchFeedback.classList.add("valid-feedback");
+                passwordMatchFeedback.style.display = "block";
             }
+        } else {
+            confirmPasswordInput.classList.remove("is-invalid", "is-valid");
+            passwordMatchFeedback.style.display = "none";
+        }
+    }
 
+    // Add event listeners for real-time validation
+    passwordInput.addEventListener("input", checkPasswordMatch);
+    confirmPasswordInput.addEventListener("input", checkPasswordMatch);
 
-            console.log("Signing up:", { name, email, password });
+    signupForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        hideError();
 
-         
-            window.location.href = "login.html";
-        });
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = passwordInput.value.trim();
+        const confirmPassword = confirmPasswordInput.value.trim();
+
+        if (!name || !email || !password || !confirmPassword) {
+            showError("Please fill out all fields.");
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            showError("Passwords do not match. Please try again.");
+            return;
+        }
+
+        console.log("Signing up:", { name, email, password });
+
+        window.location.href = "login.html";
+    });
+});
 
 // Create Memorial Section
- document.getElementById("memorialForm").addEventListener("submit", (e) => {
-            e.preventDefault();
+document.addEventListener("DOMContentLoaded", () => {
+    const memorialForm = document.getElementById("memorialForm");
+    if (!memorialForm) return;
 
-            const name = document.getElementById("memorialName").value.trim();
-            const birthDate = document.getElementById("birthDate").value;
-            const deathDate = document.getElementById("deathDate").value;
-            const biography = document.getElementById("biography").value.trim();
-            const message = document.getElementById("message").value.trim();
-            const imageFile = document.getElementById("memorialImage").files[0];
+    memorialForm.addEventListener("submit", (e) => {
+        e.preventDefault();
 
-            if (!name || !birthDate || !deathDate || !biography) {
-                alert("Please fill in all required fields.");
-                return;
-            }
+        const name = document.getElementById("memorialName").value.trim();
+        const birthDate = document.getElementById("birthDate").value;
+        const deathDate = document.getElementById("deathDate").value;
+        const biography = document.getElementById("biography").value.trim();
+        const message = document.getElementById("message").value.trim();
+        const imageFile = document.getElementById("memorialImage").files[0];
 
-            console.log("Memorial Created:", {
-                name,
-                birthDate,
-                deathDate,
-                biography,
-                message,
-                imageFile
-            });
+        if (!name || !birthDate || !deathDate || !biography) {
+            alert("Please fill in all required fields.");
+            return;
+        }
 
-            alert("Memorial created successfully!");
-            e.target.reset();
+        console.log("Memorial Created:", {
+            name,
+            birthDate,
+            deathDate,
+            biography,
+            message,
+            imageFile
         });
+
+        alert("Memorial created successfully!");
+        e.target.reset();
+    });
+});
