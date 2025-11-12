@@ -1,5 +1,5 @@
 // Import mongoose for database schema definition
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema(
     {
@@ -8,26 +8,26 @@ const userSchema = new mongoose.Schema(
             required: true,
             unique: true,
             lowercase: true,
-            trim: true,
+            trim: true
         },
 
         passwordHash: {
             type: String,
-            required: true,
+            required: true
         },
 
         name: {
             type: String,
-            trim: true,
+            trim: true
         },
 
         isAdmin: {
             type: Boolean,
-            default: false,
-        },
+            default: false
+        }
     },
     {
-        timestamps: true,
+        timestamps: true
     }
 );
 
@@ -35,4 +35,4 @@ const userSchema = new mongoose.Schema(
 userSchema.index({ email: 1 }, { unique: true });
 
 // Export the User model
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model('User', userSchema);

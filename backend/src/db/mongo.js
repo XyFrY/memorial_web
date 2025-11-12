@@ -1,20 +1,20 @@
-const path = require("path");
-const dotenv = require("dotenv");
-const mongoose = require("mongoose");
+const path = require('path');
+const dotenv = require('dotenv');
+const mongoose = require('mongoose');
 
 // Load environment variables from the .env file in the backend directory.
-const envPath = path.resolve(__dirname, "../../.env");
+const envPath = path.resolve(__dirname, '../../.env');
 const envConfig = dotenv.config({ path: envPath, override: false });
 
 // Log any error loading the .env file, but ignore "file not found" errors since it's optional.
-if (envConfig.error && envConfig.error.code !== "ENOENT") {
+if (envConfig.error && envConfig.error.code !== 'ENOENT') {
     console.error(
         `Failed to load environment variables from ${envPath}:`,
         envConfig.error
     );
 }
 
-const DEFAULT_URI = "mongodb://127.0.0.1:27017/memorial";
+const DEFAULT_URI = 'mongodb://127.0.0.1:27017/memorial';
 let missingMongoUriLogged = false;
 
 // Get the MongoDB connection URI from environment variables, falling back to a local database if not set.
@@ -46,5 +46,5 @@ async function connectMongo() {
 module.exports = {
     connectMongo,
     mongoose,
-    getMongoUri,
+    getMongoUri
 };

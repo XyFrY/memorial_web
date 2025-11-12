@@ -1,23 +1,29 @@
 // Express query/body values arrive as strings, this function turns common string inputs (like "true", "false", "1", "0") into real booleans.
 function parseBoolean(value) {
-    if (typeof value === "boolean") return value;
+    if (typeof value === 'boolean') {
+        return value;
+    }
 
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
         const normalized = value.trim().toLowerCase();
-        if (["true", "1", "yes", "on"].includes(normalized)) return true;
-        if (["false", "0", "no", "off"].includes(normalized)) return false;
+        if (['true', '1', 'yes', 'on'].includes(normalized)) {
+            return true;
+        }
+        if (['false', '0', 'no', 'off'].includes(normalized)) {
+            return false;
+        }
     }
 
     return undefined;
 }
 // Memorial request fields must contain real text. This function returns true only when the value is a string with at least one non-whitespace character after trimming.
 function isNonEmptyString(value) {
-    return typeof value === "string" && value.trim().length > 0;
+    return typeof value === 'string' && value.trim().length > 0;
 }
 
 // Convert a value to a trimmed string, or return an empty string if the value isn't a string.
 function normalizeString(value) {
-    return typeof value === "string" ? value.trim() : "";
+    return typeof value === 'string' ? value.trim() : '';
 }
 
 // Convert a value to a Date object, returning undefined if the value is missing or can't be parsed as a valid date.
@@ -50,7 +56,7 @@ function parseDate(value, fieldName) {
 
 // Sanitize user search terms before building a regex by escaping regex metacharacters, so symbols like "." or "*" are matched literally and can’t alter the query pattern.
 function escapeRegex(value) {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 module.exports = {
@@ -59,5 +65,5 @@ module.exports = {
     normalizeString,
     normalizeDate,
     parseBoolean,
-    parseDate,
+    parseDate
 };

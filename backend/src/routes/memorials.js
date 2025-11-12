@@ -1,13 +1,13 @@
-const express = require("express");
+const express = require('express');
 
-const Memorial = require("../models/memorial");
+const Memorial = require('../models/memorial');
 const {
     authenticateRequest,
     requireAdmin,
-    requireAuth,
-} = require("../utils/auth");
-const { escapeRegex, parseBoolean } = require("../utils/parsing");
-const { parseMemorialPayload } = require("../validators/memorialPayload");
+    requireAuth
+} = require('../utils/auth');
+const { escapeRegex, parseBoolean } = require('../utils/parsing');
+const { parseMemorialPayload } = require('../validators/memorialPayload');
 
 const memorialRouter = express.Router();
 
@@ -16,29 +16,29 @@ function buildListQueryOptions(query) {
     const limit = Math.max(0, parseInt(query.limit) || 0) || undefined;
     const includeUnapproved = parseBoolean(query.includeUnapproved) === true;
     const approvedFilter = parseBoolean(query.approved);
-    const searchTerm = query.search?.trim() || "";
+    const searchTerm = query.search?.trim() || '';
 
     const filter = {};
 
     // By default only show approved memorials, unless explicitly requesting unapproved ones (admin only).
     if (!includeUnapproved) {
         filter.approved = true;
-    } else if (typeof approvedFilter === "boolean") {
+    } else if (typeof approvedFilter === 'boolean') {
         filter.approved = approvedFilter;
     }
 
     if (searchTerm) {
-        filter.searchText = { $regex: escapeRegex(searchTerm), $options: "i" };
+        filter.searchText = { $regex: escapeRegex(searchTerm), $options: 'i' };
     }
 
     // Build sort order based on the sortBy parameter, defaulting to most recently published.
-    const sortDirection = query.sortDirection === "asc" ? 1 : -1;
+    const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
     const sortOptions = {
         createdAt: { createdAt: sortDirection },
         updatedAt: { updatedAt: sortDirection },
         publishedAt: { publishedAt: sortDirection, createdAt: sortDirection },
         birthDate: { birthDate: sortDirection },
-        deathDate: { deathDate: sortDirection },
+        deathDate: { deathDate: sortDirection }
     };
 
     const sort =
@@ -57,7 +57,7 @@ function applyUpdates(memorial, updates, unsetFields) {
 }
 
 // GET /api/memorials/self - Fetch all memorials created by the logged-in user.
-memorialRouter.get("/self", requireAuth, async (req, res) => {
+memorialRouter.get('/self', requireAuth, async (req, res) => {
     try {
         const memorials = await Memorial.find({ createdBy: req.user.sub })
             .sort({ updatedAt: -1, createdAt: -1 })
@@ -65,20 +65,20 @@ memorialRouter.get("/self", requireAuth, async (req, res) => {
 
         return res.json({ memorials });
     } catch (error) {
-        console.error("Failed to fetch user memorials:", error);
-        return res.status(500).json({ error: "Failed to fetch memorials" });
+        console.error('Failed to fetch user memorials:', error);
+        return res.status(500).json({ error: 'Failed to fetch memorials' });
     }
 });
 
 // GET /api/memorials/:memorialId - Fetch a single memorial by ID. Unapproved memorials are only visible to their creator or admins.
-memorialRouter.get("/:memorialId", async (req, res) => {
+memorialRouter.get('/:memorialId', async (req, res) => {
     const authPayload = authenticateRequest(req);
 
     try {
         const memorial = await Memorial.findById(req.params.memorialId);
 
         if (!memorial) {
-            return res.status(404).json({ error: "Memorial not found" });
+            return res.status(404).json({ error: 'Memorial not found' });
         }
 
         // Check if user can view this memorial
@@ -87,21 +87,21 @@ memorialRouter.get("/:memorialId", async (req, res) => {
 
         // Hide unapproved memorials from non-owners and non-admins.
         if (!memorial.approved && !isAdmin && !isOwner) {
-            return res.status(404).json({ error: "Memorial not found" });
+            return res.status(404).json({ error: 'Memorial not found' });
         }
 
         return res.json({ memorial });
     } catch (error) {
-        console.error("Failed to fetch memorial:", error);
+        console.error('Failed to fetch memorial:', error);
         // CastError means the ID format is invalid (not a valid MongoDB ObjectId).
-        if (error?.name === "CastError") {
-            return res.status(400).json({ error: "Invalid memorial id" });
+        if (error?.name === 'CastError') {
+            return res.status(400).json({ error: 'Invalid memorial id' });
         }
-        return res.status(500).json({ error: "Failed to fetch memorial" });
+        return res.status(500).json({ error: 'Failed to fetch memorial' });
     }
 });
 
-memorialRouter.get("/", async (req, res) => {
+memorialRouter.get('/', async (req, res) => {
     const { filter, includeUnapproved, limit, sort } = buildListQueryOptions(
         req.query
     );
@@ -112,60 +112,62 @@ memorialRouter.get("/", async (req, res) => {
         if (!authPayload?.isAdmin) {
             return res.status(authPayload ? 403 : 401).json({
                 error: authPayload
-                    ? "Admin access required"
-                    : "Authentication required",
+                    ? 'Admin access required'
+                    : 'Authentication required'
             });
         }
     }
 
     try {
         let query = Memorial.find(filter).sort(sort);
-        if (limit) query = query.limit(limit);
+        if (limit) {
+            query = query.limit(limit);
+        }
 
         const memorials = await query.exec();
         return res.json({ memorials });
     } catch (error) {
-        console.error("Failed to fetch memorials:", error);
-        return res.status(500).json({ error: "Failed to fetch memorials" });
+        console.error('Failed to fetch memorials:', error);
+        return res.status(500).json({ error: 'Failed to fetch memorials' });
     }
 });
 
-memorialRouter.post("/", requireAuth, async (req, res) => {
+memorialRouter.post('/', requireAuth, async (req, res) => {
     if (req.body?.approved !== undefined) {
         return res
             .status(400)
-            .json({ error: "approved cannot be set when creating a memorial" });
+            .json({ error: 'approved cannot be set when creating a memorial' });
     }
 
     const { errors, updates } = parseMemorialPayload(req.body, {
-        requireAllFields: true,
+        requireAllFields: true
     });
 
     if (errors.length > 0) {
         return res
             .status(400)
-            .json({ error: "Invalid memorial submission", details: errors });
+            .json({ error: 'Invalid memorial submission', details: errors });
     }
 
     try {
         const memorial = await Memorial.create({
             ...updates,
             createdBy: req.user.sub,
-            approved: false,
+            approved: false
         });
 
         return res.status(201).json({ memorial });
     } catch (error) {
-        console.error("Failed to create memorial:", error);
-        return res.status(500).json({ error: "Failed to create memorial" });
+        console.error('Failed to create memorial:', error);
+        return res.status(500).json({ error: 'Failed to create memorial' });
     }
 });
 
-memorialRouter.patch("/:memorialId/self", requireAuth, async (req, res) => {
+memorialRouter.patch('/:memorialId/self', requireAuth, async (req, res) => {
     if (req.body?.approved !== undefined) {
         return res
             .status(400)
-            .json({ error: "approved cannot be modified by memorial owners" });
+            .json({ error: 'approved cannot be modified by memorial owners' });
     }
 
     const { errors, updates, unsetFields, hasUpdates } = parseMemorialPayload(
@@ -175,23 +177,23 @@ memorialRouter.patch("/:memorialId/self", requireAuth, async (req, res) => {
     if (errors.length > 0) {
         return res
             .status(400)
-            .json({ error: "Invalid memorial update", details: errors });
+            .json({ error: 'Invalid memorial update', details: errors });
     }
 
     if (!hasUpdates) {
-        return res.status(400).json({ error: "No updates provided" });
+        return res.status(400).json({ error: 'No updates provided' });
     }
 
     try {
         const memorial = await Memorial.findById(req.params.memorialId);
 
         if (!memorial) {
-            return res.status(404).json({ error: "Memorial not found" });
+            return res.status(404).json({ error: 'Memorial not found' });
         }
 
         if (String(memorial.createdBy) !== req.user.sub) {
             return res.status(403).json({
-                error: "You do not have permission to update this memorial",
+                error: 'You do not have permission to update this memorial'
             });
         }
 
@@ -201,34 +203,34 @@ memorialRouter.patch("/:memorialId/self", requireAuth, async (req, res) => {
         await memorial.save();
         return res.json({ memorial });
     } catch (error) {
-        console.error("Failed to update memorial:", error);
-        return res.status(500).json({ error: "Failed to update memorial" });
+        console.error('Failed to update memorial:', error);
+        return res.status(500).json({ error: 'Failed to update memorial' });
     }
 });
 
-memorialRouter.delete("/:memorialId/self", requireAuth, async (req, res) => {
+memorialRouter.delete('/:memorialId/self', requireAuth, async (req, res) => {
     try {
         const memorial = await Memorial.findById(req.params.memorialId);
 
         if (!memorial) {
-            return res.status(404).json({ error: "Memorial not found" });
+            return res.status(404).json({ error: 'Memorial not found' });
         }
 
         if (String(memorial.createdBy) !== req.user.sub) {
             return res.status(403).json({
-                error: "You do not have permission to delete this memorial",
+                error: 'You do not have permission to delete this memorial'
             });
         }
 
         await memorial.deleteOne();
         return res.json({ success: true });
     } catch (error) {
-        console.error("Failed to delete memorial:", error);
-        return res.status(500).json({ error: "Failed to delete memorial" });
+        console.error('Failed to delete memorial:', error);
+        return res.status(500).json({ error: 'Failed to delete memorial' });
     }
 });
 
-memorialRouter.patch("/:memorialId", requireAdmin, async (req, res) => {
+memorialRouter.patch('/:memorialId', requireAdmin, async (req, res) => {
     const { errors, updates, unsetFields, hasUpdates } = parseMemorialPayload(
         req.body
     );
@@ -236,18 +238,18 @@ memorialRouter.patch("/:memorialId", requireAdmin, async (req, res) => {
     if (errors.length > 0) {
         return res
             .status(400)
-            .json({ error: "Invalid memorial update", details: errors });
+            .json({ error: 'Invalid memorial update', details: errors });
     }
 
     if (!hasUpdates) {
-        return res.status(400).json({ error: "No updates provided" });
+        return res.status(400).json({ error: 'No updates provided' });
     }
 
     try {
         const memorial = await Memorial.findById(req.params.memorialId);
 
         if (!memorial) {
-            return res.status(404).json({ error: "Memorial not found" });
+            return res.status(404).json({ error: 'Memorial not found' });
         }
 
         applyUpdates(memorial, updates, unsetFields);
@@ -255,28 +257,28 @@ memorialRouter.patch("/:memorialId", requireAdmin, async (req, res) => {
 
         return res.json({ memorial });
     } catch (error) {
-        console.error("Failed to update memorial:", error);
-        return res.status(500).json({ error: "Failed to update memorial" });
+        console.error('Failed to update memorial:', error);
+        return res.status(500).json({ error: 'Failed to update memorial' });
     }
 });
 
 memorialRouter.patch(
-    "/:memorialId/approval",
+    '/:memorialId/approval',
     requireAdmin,
     async (req, res) => {
         const parsedApproved = parseBoolean(req.body?.approved);
 
-        if (typeof parsedApproved !== "boolean") {
+        if (typeof parsedApproved !== 'boolean') {
             return res
                 .status(400)
-                .json({ error: "approved must be provided as true or false" });
+                .json({ error: 'approved must be provided as true or false' });
         }
 
         try {
             const memorial = await Memorial.findById(req.params.memorialId);
 
             if (!memorial) {
-                return res.status(404).json({ error: "Memorial not found" });
+                return res.status(404).json({ error: 'Memorial not found' });
             }
 
             memorial.approved = parsedApproved;
@@ -284,31 +286,31 @@ memorialRouter.patch(
 
             return res.json({ memorial });
         } catch (error) {
-            console.error("Failed to update approval status:", error);
+            console.error('Failed to update approval status:', error);
             return res
                 .status(500)
-                .json({ error: "Failed to update approval status" });
+                .json({ error: 'Failed to update approval status' });
         }
     }
 );
 
-memorialRouter.delete("/:memorialId", requireAdmin, async (req, res) => {
+memorialRouter.delete('/:memorialId', requireAdmin, async (req, res) => {
     try {
         const memorial = await Memorial.findByIdAndDelete(
             req.params.memorialId
         );
 
         if (!memorial) {
-            return res.status(404).json({ error: "Memorial not found" });
+            return res.status(404).json({ error: 'Memorial not found' });
         }
 
         return res.json({ success: true });
     } catch (error) {
-        console.error("Failed to delete memorial:", error);
-        return res.status(500).json({ error: "Failed to delete memorial" });
+        console.error('Failed to delete memorial:', error);
+        return res.status(500).json({ error: 'Failed to delete memorial' });
     }
 });
 
 module.exports = {
-    memorialRouter,
+    memorialRouter
 };

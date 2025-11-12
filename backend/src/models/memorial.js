@@ -1,62 +1,62 @@
 // Import mongoose for database schema definition
-const { mongoose } = require("../db/mongo");
-const { normalizeString, normalizeDate } = require("../utils/parsing");
+const { mongoose } = require('../db/mongo');
+const { normalizeString, normalizeDate } = require('../utils/parsing');
 
 // Valid name suffixes (Jr., Sr., etc.)
-const NAME_SUFFIXES = ["Jr.", "Sr.", "II", "III", "IV", "V"];
+const NAME_SUFFIXES = ['Jr.', 'Sr.', 'II', 'III', 'IV', 'V'];
 
 // Valid US state codes
 const STATE_CODES = [
-    "AL", // Alabama
-    "AK", // Alaska
-    "AZ", // Arizona
-    "AR", // Arkansas
-    "CA", // California
-    "CO", // Colorado
-    "CT", // Connecticut
-    "DE", // Delaware
-    "FL", // Florida
-    "GA", // Georgia
-    "HI", // Hawaii
-    "ID", // Idaho
-    "IL", // Illinois
-    "IN", // Indiana
-    "IA", // Iowa
-    "KS", // Kansas
-    "KY", // Kentucky
-    "LA", // Louisiana
-    "ME", // Maine
-    "MD", // Maryland
-    "MA", // Massachusetts
-    "MI", // Michigan
-    "MN", // Minnesota
-    "MS", // Mississippi
-    "MO", // Missouri
-    "MT", // Montana
-    "NE", // Nebraska
-    "NV", // Nevada
-    "NH", // New Hampshire
-    "NJ", // New Jersey
-    "NM", // New Mexico
-    "NY", // New York
-    "NC", // North Carolina
-    "ND", // North Dakota
-    "OH", // Ohio
-    "OK", // Oklahoma
-    "OR", // Oregon
-    "PA", // Pennsylvania
-    "RI", // Rhode Island
-    "SC", // South Carolina
-    "SD", // South Dakota
-    "TN", // Tennessee
-    "TX", // Texas
-    "UT", // Utah
-    "VT", // Vermont
-    "VA", // Virginia
-    "WA", // Washington
-    "WV", // West Virginia
-    "WI", // Wisconsin
-    "WY", // Wyoming
+    'AL', // Alabama
+    'AK', // Alaska
+    'AZ', // Arizona
+    'AR', // Arkansas
+    'CA', // California
+    'CO', // Colorado
+    'CT', // Connecticut
+    'DE', // Delaware
+    'FL', // Florida
+    'GA', // Georgia
+    'HI', // Hawaii
+    'ID', // Idaho
+    'IL', // Illinois
+    'IN', // Indiana
+    'IA', // Iowa
+    'KS', // Kansas
+    'KY', // Kentucky
+    'LA', // Louisiana
+    'ME', // Maine
+    'MD', // Maryland
+    'MA', // Massachusetts
+    'MI', // Michigan
+    'MN', // Minnesota
+    'MS', // Mississippi
+    'MO', // Missouri
+    'MT', // Montana
+    'NE', // Nebraska
+    'NV', // Nevada
+    'NH', // New Hampshire
+    'NJ', // New Jersey
+    'NM', // New Mexico
+    'NY', // New York
+    'NC', // North Carolina
+    'ND', // North Dakota
+    'OH', // Ohio
+    'OK', // Oklahoma
+    'OR', // Oregon
+    'PA', // Pennsylvania
+    'RI', // Rhode Island
+    'SC', // South Carolina
+    'SD', // South Dakota
+    'TN', // Tennessee
+    'TX', // Texas
+    'UT', // Utah
+    'VT', // Vermont
+    'VA', // Virginia
+    'WA', // Washington
+    'WV', // West Virginia
+    'WI', // Wisconsin
+    'WY' // Wyoming
 ];
 
 const nameSchema = new mongoose.Schema(
@@ -64,25 +64,25 @@ const nameSchema = new mongoose.Schema(
         first: {
             type: String,
             required: true,
-            trim: true,
+            trim: true
         },
 
         middle: {
             type: String,
-            trim: true,
+            trim: true
         },
 
         last: {
             type: String,
             required: true,
-            trim: true,
+            trim: true
         },
 
         suffix: {
             type: String,
             enum: NAME_SUFFIXES,
-            trim: true,
-        },
+            trim: true
+        }
     },
     { _id: false }
 );
@@ -91,15 +91,15 @@ const locationSchema = new mongoose.Schema(
     {
         city: {
             type: String,
-            trim: true,
+            trim: true
         },
 
         state: {
             type: String,
             enum: STATE_CODES,
             uppercase: true,
-            trim: true,
-        },
+            trim: true
+        }
     },
     { _id: false }
 );
@@ -146,8 +146,8 @@ function buildSearchText(memorial) {
     // Combine all parts, remove empty strings, normalize spaces, convert to lowercase
     return parts
         .filter((part) => part.length > 0)
-        .join(" ")
-        .replace(/\s+/g, " ") // Replace multiple spaces with single space
+        .join(' ')
+        .replace(/\s+/g, ' ') // Replace multiple spaces with single space
         .trim()
         .toLowerCase();
 }
@@ -156,63 +156,63 @@ const memorialSchema = new mongoose.Schema(
     {
         name: {
             type: nameSchema,
-            required: true,
+            required: true
         },
 
         createdBy: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
+            ref: 'User',
             required: true,
-            index: true,
+            index: true
         },
 
         birthDate: {
             type: Date,
-            required: true,
+            required: true
         },
 
         deathDate: {
             type: Date,
-            required: true,
+            required: true
         },
 
         biography: {
             type: String,
             required: true,
-            trim: true,
+            trim: true
         },
 
         imageUrl: {
             type: String,
-            trim: true,
+            trim: true
         },
 
         birthLocation: {
-            type: locationSchema,
+            type: locationSchema
         },
 
         deathLocation: {
-            type: locationSchema,
+            type: locationSchema
         },
 
         approved: {
             type: Boolean,
-            default: false,
+            default: false
         },
 
         publishedAt: {
-            type: Date,
+            type: Date
         },
 
         searchText: {
             type: String,
-            default: "",
+            default: '',
             trim: true,
-            index: true,
-        },
+            index: true
+        }
     },
     {
-        timestamps: true,
+        timestamps: true
     }
 );
 
@@ -220,12 +220,12 @@ memorialSchema.methods.computeSearchText = function computeSearchText() {
     return buildSearchText(this);
 };
 
-memorialSchema.pre("save", function updateComputedFields(next) {
+memorialSchema.pre('save', function updateComputedFields(next) {
     // Always rebuild search text when memorial is saved
     this.searchText = this.computeSearchText();
 
     // Update publishedAt when approval status changes
-    if (this.isModified("approved")) {
+    if (this.isModified('approved')) {
         if (this.approved) {
             // Set publishedAt when first approved (if not already set)
             this.publishedAt = this.publishedAt ?? new Date();
@@ -239,7 +239,7 @@ memorialSchema.pre("save", function updateComputedFields(next) {
 });
 
 // Create the Memorial model from the schema
-const Memorial = mongoose.model("Memorial", memorialSchema);
+const Memorial = mongoose.model('Memorial', memorialSchema);
 
 // Export constants and functions along with the model
 Memorial.NAME_SUFFIXES = NAME_SUFFIXES;
