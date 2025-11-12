@@ -15,6 +15,26 @@ function isNonEmptyString(value) {
     return typeof value === "string" && value.trim().length > 0;
 }
 
+function normalizeString(value) {
+    return typeof value === "string" ? value.trim() : "";
+}
+
+function normalizeDate(value) {
+    if (!value) {
+        return undefined;
+    }
+
+    // Convert to Date if it's not already
+    const dateValue = value instanceof Date ? value : new Date(value);
+
+    // Check if date is invalid (NaN)
+    if (Number.isNaN(dateValue.valueOf())) {
+        return undefined;
+    }
+
+    return dateValue;
+}
+
 // Turn a request value into a real Date. If the value can’t form a valid date, return an error message.
 function parseDate(value, fieldName) {
     const date = new Date(value);
@@ -34,6 +54,8 @@ function escapeRegex(value) {
 module.exports = {
     escapeRegex,
     isNonEmptyString,
+    normalizeString,
+    normalizeDate,
     parseBoolean,
     parseDate,
 };
