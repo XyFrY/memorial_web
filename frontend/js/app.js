@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ul.appendChild(li);
     });
 
-    // 🔍 Search Form
+
     const form = document.createElement("form");
     form.className = "d-flex";
     form.role = "search";
@@ -350,4 +350,5 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("Memorial created successfully!");
         e.target.reset();
     });
+
 });
