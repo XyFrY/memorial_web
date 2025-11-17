@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const dotenv = require('dotenv');
 
 // Load environment variables from .env file before anything else runs.
@@ -12,6 +13,8 @@ const app = express();
 // Use port from environment or default to 4000 for local development.
 const port = process.env.PORT || 4000;
 
+// Enable CORS to allow requests from the frontend running on a different port.
+app.use(cors());
 // Parse incoming JSON request bodies automatically.
 app.use(express.json());
 
