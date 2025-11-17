@@ -1,4 +1,4 @@
-// Index Only Navagation Section
+// Index Only Navigation Section
 document.addEventListener("DOMContentLoaded", () => {
     const navbarContainer = document.getElementById("index-navbar");
     if (!navbarContainer) return;
@@ -9,10 +9,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.createElement("div");
     container.className = "container-fluid";
 
-
+    // Brand Link Logo and Text
     const brandLink = document.createElement("a");
     brandLink.className = "navbar-brand d-flex align-items-center";
-    brandLink.href = "index.html";
+  
+    brandLink.href = "./index.html";  
+    brandLink.href = window.location.pathname.includes("pages") ? "../index.html" : "./index.html";
+
 
     const logoImg = document.createElement("img");
     logoImg.src = "./images/nav-logo.png";
@@ -41,13 +44,13 @@ document.addEventListener("DOMContentLoaded", () => {
     togglerIcon.className = "navbar-toggler-icon";
     toggler.appendChild(togglerIcon);
 
+
     const collapseDiv = document.createElement("div");
     collapseDiv.className = "collapse navbar-collapse";
     collapseDiv.id = "navbarNavIndex";
 
     const ul = document.createElement("ul");
-    ul.className = "navbar-nav ms-auto";
-
+    ul.className = "navbar-nav me-auto mb-2 mb-lg-0";
 
     const links = [
         { name: "Home", href: "index.html", active: true },
@@ -70,9 +73,33 @@ document.addEventListener("DOMContentLoaded", () => {
         ul.appendChild(li);
     });
 
-    collapseDiv.appendChild(ul);
 
-    
+    const form = document.createElement("form");
+    form.className = "d-flex";
+    form.role = "search";
+
+    const searchInput = document.createElement("input");
+    searchInput.className = "form-control me-2";
+    searchInput.type = "search";
+    searchInput.placeholder = "Search";
+    searchInput.setAttribute("aria-label", "Search");
+
+    const searchButton = document.createElement("button");
+    searchButton.className = "btn btn-outline-primary"; 
+    searchButton.type = "submit";
+    searchButton.textContent = "Search";
+
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        alert(`Searching for: ${searchInput.value}`);
+    });
+
+    form.appendChild(searchInput);
+    form.appendChild(searchButton);
+
+  
+    collapseDiv.appendChild(ul);
+    collapseDiv.appendChild(form);
     container.appendChild(brandLink);
     container.appendChild(toggler);
     container.appendChild(collapseDiv);
@@ -83,37 +110,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Navagation Section 
 document.addEventListener("DOMContentLoaded", () => {
-    const navbar = document.getElementById("navbar");
+    const navbarContainer = document.getElementById("navbar");
+    if (!navbarContainer) return;
 
-    
     const nav = document.createElement("nav");
-    nav.classList.add("navbar", "navbar-expand-lg", "navbar-light", "bg-body-tertiary", "shadow-sm");
-
+    nav.className = "navbar navbar-expand-lg navbar-light bg-body-tertiary shadow-sm";
 
     const container = document.createElement("div");
-    container.classList.add("container-fluid");
+    container.className = "container-fluid";
 
- 
-    const brand = document.createElement("a");
-    brand.classList.add("navbar-brand", "d-flex", "align-items-center");
-    brand.href = "#";
+    // Brand Link Logo and Text
+    const brandLink = document.createElement("a");
+    brandLink.className = "navbar-brand d-flex align-items-center";
+   
+    brandLink.href = window.location.pathname.includes("pages") ? "../index.html" : "./index.html";
 
-    const logo = document.createElement("img");
-    logo.src = "../images/nav-logo.png";
-    logo.alt = "Logo";
-    logo.width = 30;
-    logo.height = 24;
-    logo.classList.add("d-inline-block", "align-text-top", "me-2");
+    const logoImg = document.createElement("img");
+    logoImg.src = window.location.pathname.includes("pages") 
+        ? "../images/nav-logo.png" 
+        : "./images/nav-logo.png";
+    logoImg.alt = "Logo";
+    logoImg.width = 30;
+    logoImg.height = 24;
+    logoImg.className = "d-inline-block align-text-top me-2";
 
     const brandText = document.createElement("span");
     brandText.textContent = "Memorial Web";
 
-    brand.appendChild(logo);
-    brand.appendChild(brandText);
+    brandLink.appendChild(logoImg);
+    brandLink.appendChild(brandText);
 
-
+    
     const toggler = document.createElement("button");
-    toggler.classList.add("navbar-toggler");
+    toggler.className = "navbar-toggler";
     toggler.type = "button";
     toggler.setAttribute("data-bs-toggle", "collapse");
     toggler.setAttribute("data-bs-target", "#navbarNav");
@@ -122,47 +151,73 @@ document.addEventListener("DOMContentLoaded", () => {
     toggler.setAttribute("aria-label", "Toggle navigation");
 
     const togglerIcon = document.createElement("span");
-    togglerIcon.classList.add("navbar-toggler-icon");
+    togglerIcon.className = "navbar-toggler-icon";
     toggler.appendChild(togglerIcon);
 
   
-    const collapse = document.createElement("div");
-    collapse.classList.add("collapse", "navbar-collapse");
-    collapse.id = "navbarNav";
-
+    const collapseDiv = document.createElement("div");
+    collapseDiv.className = "collapse navbar-collapse";
+    collapseDiv.id = "navbarNav";
 
     const ul = document.createElement("ul");
-    ul.classList.add("navbar-nav", "ms-auto");
+    ul.className = "navbar-nav me-auto mb-2 mb-lg-0";
 
     const links = [
-        { text: "Home", href: "../index.html" },
-        { text: "Dashboard", href: "dashboard.html" },
-        { text: "Create Memorial", href: "create-memorial.html" },
-        { text: "Login", href: "login.html" },
+        { name: "Home", href: "../index.html" },
+        { name: "Dashboard", href: "dashboard.html" },
+        { name: "Create Memorial", href: "create-memorial.html" },
+        { name: "Login", href: "login.html" },
     ];
 
-    links.forEach((link, index) => {
+    links.forEach(linkData => {
         const li = document.createElement("li");
-        li.classList.add("nav-item");
+        li.className = "nav-item";
 
         const a = document.createElement("a");
-        a.classList.add("nav-link");
-        if (index === 0) a.classList.add("active"); 
-        a.href = link.href;
-        a.textContent = link.text;
+        a.className = "nav-link";
+        
+        if (window.location.href.includes(linkData.href)) a.classList.add("active");
+        a.href = linkData.href;
+        a.textContent = linkData.name;
 
         li.appendChild(a);
         ul.appendChild(li);
     });
 
     
-    collapse.appendChild(ul);
-    container.appendChild(brand);
+    const form = document.createElement("form");
+    form.className = "d-flex";
+    form.role = "search";
+
+    const searchInput = document.createElement("input");
+    searchInput.className = "form-control me-2";
+    searchInput.type = "search";
+    searchInput.placeholder = "Search";
+    searchInput.setAttribute("aria-label", "Search");
+
+    const searchButton = document.createElement("button");
+    searchButton.className = "btn btn-outline-primary"; 
+    searchButton.type = "submit";
+    searchButton.textContent = "Search";
+
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        alert(`Searching for: ${searchInput.value}`);
+    });
+
+    form.appendChild(searchInput);
+    form.appendChild(searchButton);
+
+  
+    collapseDiv.appendChild(ul);
+    collapseDiv.appendChild(form);
+    container.appendChild(brandLink);
     container.appendChild(toggler);
-    container.appendChild(collapse);
+    container.appendChild(collapseDiv);
     nav.appendChild(container);
-    navbar.appendChild(nav);
+    navbarContainer.appendChild(nav);
 });
+
 
 // Login Page Section
 document.addEventListener("DOMContentLoaded", () => {
