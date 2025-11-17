@@ -105,6 +105,38 @@ const memorialAPI = {
     },
 };
 
+// Helper functions for managing authentication state in the browser.
+const authStorage = {
+    // Save the user's token and info to localStorage so they stay logged in across page reloads.
+    saveAuth(token, user) {
+        localStorage.setItem("authToken", token);
+        localStorage.setItem("user", JSON.stringify(user));
+    },
+
+    // Get the saved authentication token from localStorage, or null if not logged in.
+    getToken() {
+        return localStorage.getItem("authToken");
+    },
+
+    // Get the saved user info from localStorage, or null if not logged in.
+    getUser() {
+        const userJson = localStorage.getItem("user");
+        return userJson ? JSON.parse(userJson) : null;
+    },
+
+    // Remove all authentication data from localStorage to log the user out.
+    clearAuth() {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
+    },
+
+    // Check if the user is currently logged in by seeing if we have a token saved.
+    isAuthenticated() {
+        return !!this.getToken();
+    },
+};
+
 // Make the API modules available globally so they can be used in any script.
 window.authAPI = authAPI;
 window.memorialAPI = memorialAPI;
+window.authStorage = authStorage;
