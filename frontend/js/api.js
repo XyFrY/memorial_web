@@ -61,15 +61,20 @@ const authAPI = {
 
 // All memorial-related API calls (get, create, update, delete).
 const memorialAPI = {
-    // Fetch all memorials from the database. Requires authentication.
-    async getAll(token) {
+    // Fetch all memorials from the database. Token is optional.
+    async getAll(token = null) {
         try {
+            const headers = {
+                "Content-Type": "application/json",
+            };
+
+            if (token) {
+                headers.Authorization = `Bearer ${token}`;
+            }
+
             const response = await fetch(`${API_BASE_URL}/memorials`, {
                 method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: headers,
             });
 
             const data = await response.json();
