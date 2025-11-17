@@ -350,5 +350,4 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("Memorial created successfully!");
         e.target.reset();
     });
-
 });
