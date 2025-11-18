@@ -55,6 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { name: "Dashboard", href: "pages/dashboard.html" },
         { name: "Create Memorial", href: "pages/create-memorial.html" },
         { name: "Login", href: "pages/login.html" },
+        { name: "Log Out", href: "" },
     ];
 
     links.forEach(linkData => {
@@ -160,6 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { name: "Dashboard", href: "dashboard.html" },
         { name: "Create Memorial", href: "create-memorial.html" },
         { name: "Login", href: "login.html" },
+        { name: "Log Out", href: "" },
     ];
 
     links.forEach(linkData => {
@@ -208,3 +210,4 @@ document.addEventListener("DOMContentLoaded", () => {
     nav.appendChild(container);
     navbarContainer.appendChild(nav);
 });
+
