@@ -158,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const links = [
         { name: "Home", href: "../index.html" },
-        { name: "Dashboard", href: "dashboard.html" },
+        { name: "Dashboard", href: "user-dashboard.html" },
         { name: "Create Memorial", href: "create-memorial.html" },
         { name: "Login", href: "login.html" },
         { name: "Log Out", href: "" },
@@ -210,4 +210,5 @@ document.addEventListener("DOMContentLoaded", () => {
     nav.appendChild(container);
     navbarContainer.appendChild(nav);
 });
+
 
