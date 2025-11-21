@@ -1,0 +1,19 @@
+.small-text{
+    font-size: smaller;
+    color: gray;
+}
+
+.text-in-middle{
+    vertical-align: baseline;
+}
+
+.big-text{
+    font-size: x-large;
+    font-weight: bold;
+}
+
+#button-nav{
+    background-color:rgb(241, 241, 241);
+    margin-top: 30px;
+    gap: 10px;
+}
