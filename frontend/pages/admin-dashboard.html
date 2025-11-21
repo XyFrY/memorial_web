@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Dashboard</title>
+
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+            crossorigin="anonymous"
+        />
+
+        <link rel="stylesheet" href="../css/style.css" />
+
+        <body class="bg-light">
+            <div id="navbar"></div>
+            <div class="py-5 card mx-auto p-4" style="max-width: 1200px;">
+                <table>
+                    <thead>
+                        <tr class="small-text">
+                            <th>Pending Requests</th>
+                            <th>Published</th>
+                            <th>Drafts</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="big-text">
+                            <td>2</td>
+                            <td>1</td>
+                            <td>1</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mx-auto" style="max-width: 1200px;">
+                <div class="rounded-pill btn" id="button-nav">
+                    <button class="btn btn-light rounded-pill px-3" id="request-btn">Requests</button>
+                    <button class="btn btn-light rounded-pill px-3" id="published-btn">Published</button>
+                    <button class="btn btn-light rounded-pill px-3" id="drafts-btn">Drafts</button>
+                </div>
+            </div>
+
+            <!--REQUESTS-->
+                <div class="table-responsive small" style="margin-top: 30px;" id="request-table">
+                    <table class="table table-striped mx-auto p-4" style="max-width: 1200px;">
+                        <thead>
+                            <tr>
+                                <th>ID #</th>
+                                <th>Name</th>
+                                <th>Submitted By</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="text-in-middle">
+                                <td>11111</td>
+                                <td>Johnny Bravo</td>
+                                <td>friendofjohnny@hotmail.com</td>
+                                <td>2d ago</td>
+                                <td>Pending</td>
+                                <td><button class="btn btn-light rounded-pill px-3">Review</button>
+                                <button class="btn btn-danger rounded-pill px-3">Reject</button></td>
+                            </tr>
+                             <tr class="text-in-middle">
+                                <td>22222</td>
+                                <td>Macro Polo</td>
+                                <td>sailer1254@gmail.com</td>
+                                <td>3d ago</td>
+                                <td>Pending</td>
+                                <td><button class="btn btn-light rounded-pill px-3">Review</button>
+                                <button class="btn btn-danger rounded-pill px-3">Reject</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            <!--PUBLISHED-->
+                <div class="table-responsive small" style="margin-top: 30px;" id="published-table">
+                    <table class="table table-striped mx-auto p-4" style="max-width: 1200px;">
+                        <thead>
+                            <tr>
+                                <th>ID #</th>
+                                <th>Name</th>
+                                <th>Submitted By</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                             <tr class="text-in-middle">
+                                <td>33333</td>
+                                <td>Steve</td>
+                                <td>mine@cox.com</td>
+                                <td>5d ago</td>
+                                <td>Published</td>
+                                <td><button class="btn btn-danger rounded-pill px-3">Remove</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            
+            <!--Drafts-->
+                <div class="table-responsive small" style="margin-top: 30px;" id="drafts-table">
+                    <table class="table table-striped mx-auto p-4" style="max-width: 1200px;">
+                        <thead>
+                            <tr>
+                                <th>ID #</th>
+                                <th>Name</th>
+                                <th>Drafted By</th>
+                                <th>Drafted</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                             <tr class="text-in-middle">
+                                <td>55555</td>
+                                <td>Philip J. Fry</td>
+                                <td>futureman@cox.com</td>
+                                <td>365000 ago</td>
+                                <td><button class="btn btn-danger rounded-pill px-3">Remove</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            
+        </body>
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"
+        ></script>
+
+        <script src="../js/api.js"></script>
+        <script src="../js/navbar.js"></script>
+        <script src="../js/admin-dash.js"></script>
+    </head>
+</html>
