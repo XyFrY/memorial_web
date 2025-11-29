@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const brandLink = document.createElement("a");
     brandLink.className = "navbar-brand d-flex align-items-center";
     brandLink.href = "./index.html";
-    brandLink.href = window.location.pathname.includes("pages") ? "../index.html" : "./index.html";
 
     const logoImg = document.createElement("img");
     logoImg.src = "./images/nav-logo.png";
@@ -52,9 +51,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const links = [
         { name: "Home", href: "index.html", active: true },
-        { name: "Dashboard", href: "pages/dashboard.html" },
-        { name: "Create Memorial", href: "pages/create-memorial.html" },
-        { name: "Login", href: "pages/login.html" },
+        { name: "Dashboard", href: "user-dashboard.html" },
+        { name: "Create Memorial", href: "create-memorial.html" },
+        { name: "Login", href: "login.html" },
         { name: "Log Out", href: "" },
     ];
 
@@ -119,12 +118,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Brand Link Logo and Text
     const brandLink = document.createElement("a");
     brandLink.className = "navbar-brand d-flex align-items-center";
-    brandLink.href = window.location.pathname.includes("pages") ? "../index.html" : "./index.html";
+    brandLink.href = "./index.html";
 
     const logoImg = document.createElement("img");
-    logoImg.src = window.location.pathname.includes("pages")
-        ? "../images/nav-logo.png"
-        : "./images/nav-logo.png";
+    logoImg.src = "./images/nav-logo.png";
     logoImg.alt = "Logo";
     logoImg.width = 30;
     logoImg.height = 24;
@@ -157,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ul.className = "navbar-nav me-auto mb-2 mb-lg-0";
 
     const links = [
-        { name: "Home", href: "../index.html" },
+        { name: "Home", href: "index.html" },
         { name: "Dashboard", href: "user-dashboard.html" },
         { name: "Create Memorial", href: "create-memorial.html" },
         { name: "Login", href: "login.html" },

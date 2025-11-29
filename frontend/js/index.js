@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <p class="card-text flex-grow-1">${truncatedBio}</p>
                     <div class="d-flex justify-content-between align-items-center mt-auto">
                         <div class="btn-group">
-                            <a href="pages/memorial.html?id=${memorial._id}" class="btn btn-sm btn-outline-primary">View Memorial</a>
+                            <a href="memorial.html?id=${memorial._id}" class="btn btn-sm btn-outline-primary">View Memorial</a>
                         </div>
                         <small class="text-muted">Published ${formatDate(memorial.publishedAt)}</small>
                     </div>
