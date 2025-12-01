@@ -72,34 +72,37 @@ document.addEventListener("DOMContentLoaded", async () => {
         const col = document.createElement("div");
         col.className = "col";
 
+        // Use memorial image or placeholder
+        const imageUrl = memorial.imageUrl || 'frontend/images/placeholderimg.jpg';
+
         col.innerHTML = `
-            <div class="card shadow-sm h-100">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">${fullName}</h5>
-                    <p class="card-text text-muted mb-2">
-                        ${formatDate(memorial.birthDate)} - ${formatDate(memorial.deathDate)}
-                        <br>
-                        <small>Age: ${age} years</small>
-                    </p>
-                    ${
-                        birthLocation
-                            ? `<p class="card-text mb-1"><small><strong>Born:</strong> ${birthLocation}</small></p>`
-                            : ""
-                    }
-                    ${
-                        deathLocation
-                            ? `<p class="card-text mb-2"><small><strong>Died:</strong> ${deathLocation}</small></p>`
-                            : ""
-                    }
-                    <p class="card-text flex-grow-1">${truncatedBio}</p>
-                    <div class="d-flex justify-content-between align-items-center mt-auto">
-                        <div class="btn-group">
-                            <a href="memorial.html?id=${memorial._id}" class="btn btn-sm btn-outline-primary">View Memorial</a>
+            <a href="memorial.html?id=${memorial._id}" class="text-decoration-none">
+                <div class="card shadow-sm h-100 memorial-card">
+                    <img src="${imageUrl}" class="card-img-top" alt="${fullName}" style="height: 300px; object-fit: cover;">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-dark">${fullName}</h5>
+                        <p class="card-text text-muted mb-2">
+                            ${formatDate(memorial.birthDate)} - ${formatDate(memorial.deathDate)}
+                            <br>
+                            <small>Age: ${age} years</small>
+                        </p>
+                        ${
+                            birthLocation
+                                ? `<p class="card-text mb-1"><small><strong>Born:</strong> ${birthLocation}</small></p>`
+                                : ""
+                        }
+                        ${
+                            deathLocation
+                                ? `<p class="card-text mb-2"><small><strong>Died:</strong> ${deathLocation}</small></p>`
+                                : ""
+                        }
+                        <p class="card-text flex-grow-1 text-dark">${truncatedBio}</p>
+                        <div class="mt-auto">
+                            <small class="text-muted">Published ${formatDate(memorial.publishedAt)}</small>
                         </div>
-                        <small class="text-muted">Published ${formatDate(memorial.publishedAt)}</small>
                     </div>
                 </div>
-            </div>
+            </a>
         `;
 
         return col;
@@ -139,9 +142,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             if (!data.memorials || data.memorials.length === 0) {
                 memorialsContainer.innerHTML = `
-                    <div class="col-12 text-center py-5">
-                        <h4 class="text-muted">No memorials found</h4>
-                        <p class="text-muted">Be the first to create a memorial.</p>
+                    <div class="col-12 d-flex justify-content-center">
+                        <div class="card shadow-sm p-5 text-center" style="max-width: 600px; width: 100%;">
+                            <div class="card-body">
+                                <h3 class="fw-bold mb-3">No Memorials Yet</h3>
+                                <p class="lead text-muted mb-4">Be the first to create a memorial and honor a loved one.</p>
+                                <a href="create-memorial.html" class="btn btn-primary btn-lg">Create a Memorial</a>
+                            </div>
+                        </div>
                     </div>
                 `;
                 return;
