@@ -160,28 +160,6 @@ const memorialAPI = {
         }
     },
 
-    // Update a memorial (user updates their own). Requires authentication.
-    async updateSelf(memorialId, memorialData, token) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/memorials/${memorialId}/self`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(memorialData),
-            });
-
-            const data = await response.json();
-            handleAPIError(null, response, data);
-
-            return data;
-        } catch (error) {
-            console.error("Update memorial API error:", error);
-            throw error;
-        }
-    },
-
     // Delete a memorial (user deletes their own). Requires authentication.
     async deleteSelf(memorialId, token) {
         try {

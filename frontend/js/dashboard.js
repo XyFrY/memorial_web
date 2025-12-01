@@ -140,6 +140,13 @@ function getFullName(memorial) {
     return fullName;
 }
 
+function getSubmitterName(memorial) {
+    if (memorial.createdBy && typeof memorial.createdBy === 'object') {
+        return memorial.createdBy.name || memorial.createdBy.email || 'Unknown';
+    }
+    return 'Unknown';
+}
+
 function populateRequestsTable(memorials, isAdmin, token) {
     const tbody = document.getElementById("request-tbody");
 
@@ -152,15 +159,14 @@ function populateRequestsTable(memorials, isAdmin, token) {
         <tr class="align-middle">
             <td>${memorial._id.slice(-5)}</td>
             <td>${getFullName(memorial)}</td>
-            <td>${memorial.createdBy}</td>
+            <td>${getSubmitterName(memorial)}</td>
             <td>${formatDate(memorial.createdAt)}</td>
             <td><span class="badge bg-warning text-dark">Pending</span></td>
             <td>
                 ${isAdmin
                     ? `<button class="btn btn-sm btn-success me-2" onclick="approveMemorial('${memorial._id}')">Approve</button>
                        <button class="btn btn-sm btn-danger" onclick="rejectMemorial('${memorial._id}')">Reject</button>`
-                    : `<button class="btn btn-sm btn-outline-secondary me-2" onclick="editMemorial('${memorial._id}')">Edit</button>
-                       <button class="btn btn-sm btn-outline-danger" onclick="deleteMemorial('${memorial._id}')">Remove</button>`
+                    : `<button class="btn btn-sm btn-outline-danger" onclick="deleteMemorial('${memorial._id}')">Remove</button>`
                 }
             </td>
         </tr>
@@ -179,7 +185,7 @@ function populatePublishedTable(memorials, isAdmin, token) {
         <tr class="align-middle">
             <td>${memorial._id.slice(-5)}</td>
             <td>${getFullName(memorial)}</td>
-            <td>${memorial.createdBy}</td>
+            <td>${getSubmitterName(memorial)}</td>
             <td>${formatDate(memorial.publishedAt || memorial.createdAt)}</td>
             <td><span class="badge bg-success">Published</span></td>
             <td>
@@ -224,10 +230,6 @@ window.rejectMemorial = async function(memorialId) {
     } catch (error) {
         showError("Failed to reject memorial");
     }
-};
-
-window.editMemorial = function(memorialId) {
-    window.location.href = `create-memorial.html?edit=${memorialId}`;
 };
 
 window.deleteMemorial = async function(memorialId, isAdmin = false) {

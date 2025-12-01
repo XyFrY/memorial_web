@@ -45,7 +45,7 @@ function buildListQueryOptions(query) {
     return { filter, includeUnapproved, limit, sort };
 }
 
-// Apply updates to a memorial document and unset any fields that should be removed.
+// Apply updates to a memorial document and unset any fields that should be removed (admin use only).
 function applyUpdates(memorial, updates, unsetFields) {
     Object.assign(memorial, updates);
     unsetFields.forEach((field) => (memorial[field] = undefined));
@@ -55,6 +55,7 @@ function applyUpdates(memorial, updates, unsetFields) {
 memorialRouter.get('/self', requireAuth, async (req, res) => {
     try {
         const memorials = await Memorial.find({ createdBy: req.user.sub })
+            .populate('createdBy', 'name email')
             .sort({ updatedAt: -1, createdAt: -1 })
             .exec();
 
@@ -114,7 +115,9 @@ memorialRouter.get('/', async (req, res) => {
     }
 
     try {
-        let query = Memorial.find(filter).sort(sort);
+        let query = Memorial.find(filter)
+            .populate('createdBy', 'name email')
+            .sort(sort);
         if (limit) {
             query = query.limit(limit);
         }
@@ -155,51 +158,6 @@ memorialRouter.post('/', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Failed to create memorial:', error);
         return res.status(500).json({ error: 'Failed to create memorial' });
-    }
-});
-
-memorialRouter.patch('/:memorialId/self', requireAuth, async (req, res) => {
-    if (req.body?.approved !== undefined) {
-        return res
-            .status(400)
-            .json({ error: 'approved cannot be modified by memorial owners' });
-    }
-
-    const { errors, updates, unsetFields, hasUpdates } = parseMemorialPayload(
-        req.body
-    );
-
-    if (errors.length > 0) {
-        return res
-            .status(400)
-            .json({ error: 'Invalid memorial update', details: errors });
-    }
-
-    if (!hasUpdates) {
-        return res.status(400).json({ error: 'No updates provided' });
-    }
-
-    try {
-        const memorial = await Memorial.findById(req.params.memorialId);
-
-        if (!memorial) {
-            return res.status(404).json({ error: 'Memorial not found' });
-        }
-
-        if (String(memorial.createdBy) !== req.user.sub) {
-            return res.status(403).json({
-                error: 'You do not have permission to update this memorial'
-            });
-        }
-
-        applyUpdates(memorial, updates, unsetFields);
-        memorial.approved = false; // Reset approval on edit
-
-        await memorial.save();
-        return res.json({ memorial });
-    } catch (error) {
-        console.error('Failed to update memorial:', error);
-        return res.status(500).json({ error: 'Failed to update memorial' });
     }
 });
 

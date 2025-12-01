@@ -1,6 +1,5 @@
 // Import mongoose for database schema definition
 const { mongoose } = require('../db/mongo');
-const { normalizeString, normalizeDate } = require('../utils/parsing');
 
 // Valid name suffixes (Jr., Sr., etc.)
 const NAME_SUFFIXES = ['Jr.', 'Sr.', 'II', 'III', 'IV', 'V'];
@@ -104,54 +103,6 @@ const locationSchema = new mongoose.Schema(
     { _id: false }
 );
 
-function buildSearchText(memorial) {
-    const parts = [];
-
-    // Add name components
-    if (memorial?.name) {
-        parts.push(normalizeString(memorial.name.first));
-        parts.push(normalizeString(memorial.name.middle));
-        parts.push(normalizeString(memorial.name.last));
-        parts.push(normalizeString(memorial.name.suffix));
-    }
-
-    // Add birth location
-    const birthLocation = memorial?.birthLocation ?? memorial?.birthPlace;
-    if (birthLocation) {
-        parts.push(normalizeString(birthLocation.city));
-        parts.push(normalizeString(birthLocation.state));
-    }
-
-    // Add death location
-    const deathLocation = memorial?.deathLocation ?? memorial?.deathPlace;
-    if (deathLocation) {
-        parts.push(normalizeString(deathLocation.city));
-        parts.push(normalizeString(deathLocation.state));
-    }
-
-    // Add birth date (both full date and year for flexible searching)
-    const birthDate = normalizeDate(memorial?.birthDate);
-    if (birthDate) {
-        parts.push(birthDate.toISOString().slice(0, 10)); // YYYY-MM-DD format
-        parts.push(String(birthDate.getFullYear())); // Just the year
-    }
-
-    // Add death date (both full date and year)
-    const deathDate = normalizeDate(memorial?.deathDate);
-    if (deathDate) {
-        parts.push(deathDate.toISOString().slice(0, 10)); // YYYY-MM-DD format
-        parts.push(String(deathDate.getFullYear())); // Just the year
-    }
-
-    // Combine all parts, remove empty strings, normalize spaces, convert to lowercase
-    return parts
-        .filter((part) => part.length > 0)
-        .join(' ')
-        .replace(/\s+/g, ' ') // Replace multiple spaces with single space
-        .trim()
-        .toLowerCase();
-}
-
 const memorialSchema = new mongoose.Schema(
     {
         name: {
@@ -202,13 +153,6 @@ const memorialSchema = new mongoose.Schema(
 
         publishedAt: {
             type: Date
-        },
-
-        searchText: {
-            type: String,
-            default: '',
-            trim: true,
-            index: true
         }
     },
     {
@@ -216,14 +160,7 @@ const memorialSchema = new mongoose.Schema(
     }
 );
 
-memorialSchema.methods.computeSearchText = function computeSearchText() {
-    return buildSearchText(this);
-};
-
 memorialSchema.pre('save', function updateComputedFields(next) {
-    // Always rebuild search text when memorial is saved
-    this.searchText = this.computeSearchText();
-
     // Update publishedAt when approval status changes
     if (this.isModified('approved')) {
         if (this.approved) {
@@ -241,9 +178,8 @@ memorialSchema.pre('save', function updateComputedFields(next) {
 // Create the Memorial model from the schema
 const Memorial = mongoose.model('Memorial', memorialSchema);
 
-// Export constants and functions along with the model
+// Export constants along with the model
 Memorial.NAME_SUFFIXES = NAME_SUFFIXES;
 Memorial.STATE_CODES = STATE_CODES;
-Memorial.buildSearchText = buildSearchText;
 
 module.exports = Memorial;
