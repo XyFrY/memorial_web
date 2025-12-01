@@ -61,26 +61,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
     form.appendChild(searchInput);
 
-    // Login/Logout button
-    const authButton = document.createElement("a");
-    const token = localStorage.getItem("token");
-    if (token) {
-        authButton.textContent = "Log Out";
-        authButton.href = "#";
-        authButton.className = "btn btn-outline-secondary";
-        authButton.addEventListener("click", (e) => {
-            e.preventDefault();
-            localStorage.removeItem("token");
-            window.location.href = "index.html";
-        });
+    // Check if user is logged in
+    const token = localStorage.getItem("authToken");
+    const isLoggedIn = !!token;
+
+    // Check if we're on the dashboard page
+    const isDashboardPage = window.location.pathname.includes('dashboard.html');
+
+    // Show appropriate button based on login state and current page
+    const navButton = document.createElement("a");
+
+    if (isLoggedIn) {
+        if (isDashboardPage) {
+            // On dashboard page: show "Sign Out" button
+            navButton.textContent = "Sign Out";
+            navButton.href = "#";
+            navButton.className = "btn btn-outline-secondary";
+            navButton.addEventListener("click", (e) => {
+                e.preventDefault();
+                localStorage.removeItem("authToken");
+                localStorage.removeItem("user");
+                window.location.href = "index.html";
+            });
+        } else {
+            // On other pages when logged in: show "Dashboard" button
+            navButton.textContent = "Dashboard";
+            navButton.href = "dashboard.html";
+            navButton.className = "btn btn-primary";
+        }
     } else {
-        authButton.textContent = "Login";
-        authButton.href = "login.html";
-        authButton.className = "btn btn-primary";
+        // Not logged in: show "Login" button
+        navButton.textContent = "Login";
+        navButton.href = "login.html";
+        navButton.className = "btn btn-primary";
     }
 
     collapseDiv.appendChild(form);
-    collapseDiv.appendChild(authButton);
+    collapseDiv.appendChild(navButton);
     container.appendChild(brandLink);
     container.appendChild(toggler);
     container.appendChild(collapseDiv);
