@@ -5,6 +5,7 @@
     "main": "index.js",
     "scripts": {
         "start": "node src/server.js",
+        "testdata": "node src/scripts/generateTestData.js",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix"
     },

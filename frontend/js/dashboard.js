@@ -25,13 +25,11 @@ document.addEventListener("DOMContentLoaded", async function() {
     const buttons = {
         requests: document.getElementById("request-btn"),
         published: document.getElementById("published-btn"),
-        drafts: document.getElementById("drafts-btn"),
     };
 
     const tables = {
         requests: document.getElementById("request-table"),
         published: document.getElementById("published-table"),
-        drafts: document.getElementById("drafts-table"),
     };
 
     // Function to switch between tables
@@ -54,7 +52,6 @@ document.addEventListener("DOMContentLoaded", async function() {
     // Add event listeners to buttons
     buttons.requests.addEventListener("click", () => showTable("requests"));
     buttons.published.addEventListener("click", () => showTable("published"));
-    buttons.drafts.addEventListener("click", () => showTable("drafts"));
 
     // Show requests table by default
     showTable("requests");
@@ -88,17 +85,15 @@ async function loadDashboardData(isAdmin, token) {
         // Categorize memorials
         const pending = memorials.filter(m => !m.approved);
         const published = memorials.filter(m => m.approved);
-        const drafts = []; // No draft functionality yet
 
         // Update stats if admin
         if (isAdmin) {
-            updateStats(pending.length, published.length, drafts.length);
+            updateStats(pending.length, published.length);
         }
 
         // Populate tables
         populateRequestsTable(pending, isAdmin, token);
         populatePublishedTable(published, isAdmin, token);
-        populateDraftsTable(drafts, isAdmin, token);
 
         // Hide loading spinner
         spinner.classList.add("d-none");
@@ -112,13 +107,12 @@ async function loadDashboardData(isAdmin, token) {
     }
 }
 
-function updateStats(pendingCount, publishedCount, draftsCount) {
+function updateStats(pendingCount, publishedCount) {
     const statsTable = document.querySelector("#admin-stats tbody tr");
     if (statsTable) {
         statsTable.innerHTML = `
             <td>${pendingCount}</td>
             <td>${publishedCount}</td>
-            <td>${draftsCount}</td>
         `;
     }
 }
@@ -193,11 +187,6 @@ function populatePublishedTable(memorials, isAdmin, token) {
             </td>
         </tr>
     `).join('');
-}
-
-function populateDraftsTable(memorials, isAdmin, token) {
-    const tbody = document.getElementById("drafts-tbody");
-    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">No drafts</td></tr>';
 }
 
 function showError(message) {
