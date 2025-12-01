@@ -6,17 +6,16 @@ const {
     requireAdmin,
     requireAuth
 } = require('../utils/auth');
-const { escapeRegex, parseBoolean } = require('../utils/parsing');
+const { parseBoolean } = require('../utils/parsing');
 const { parseMemorialPayload } = require('../validators/memorialPayload');
 
 const memorialRouter = express.Router();
 
-// Build MongoDB query options from URL parameters like search, limit, sortBy, etc.
+// Build MongoDB query options from URL parameters like limit, sortBy, etc.
 function buildListQueryOptions(query) {
     const limit = Math.max(0, parseInt(query.limit) || 0) || undefined;
     const includeUnapproved = parseBoolean(query.includeUnapproved) === true;
     const approvedFilter = parseBoolean(query.approved);
-    const searchTerm = query.search?.trim() || '';
 
     const filter = {};
 
@@ -25,10 +24,6 @@ function buildListQueryOptions(query) {
         filter.approved = true;
     } else if (typeof approvedFilter === 'boolean') {
         filter.approved = approvedFilter;
-    }
-
-    if (searchTerm) {
-        filter.searchText = { $regex: escapeRegex(searchTerm), $options: 'i' };
     }
 
     // Build sort order based on the sortBy parameter, defaulting to most recently published.

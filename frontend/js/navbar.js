@@ -44,59 +44,59 @@ document.addEventListener("DOMContentLoaded", () => {
     collapseDiv.className = "collapse navbar-collapse";
     collapseDiv.id = "navbarNav";
 
-    const form = document.createElement("form");
-    form.className = "d-flex ms-auto me-2";
-    form.role = "search";
-
-    const searchInput = document.createElement("input");
-    searchInput.className = "form-control";
-    searchInput.type = "search";
-    searchInput.placeholder = "Search";
-    searchInput.setAttribute("aria-label", "Search");
-
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        alert(`Searching for: ${searchInput.value}`);
-    });
-
-    form.appendChild(searchInput);
-
     // Check if user is logged in
     const token = localStorage.getItem("authToken");
     const isLoggedIn = !!token;
 
-    // Check if we're on the dashboard page
-    const isDashboardPage = window.location.pathname.includes('dashboard.html');
+    // Navigation links
+    const navList = document.createElement("ul");
+    navList.className = "navbar-nav ms-auto mb-2 mb-lg-0";
 
-    // Show appropriate button based on login state and current page
+    const navLinks = [
+        { text: "Home", href: "index.html" },
+        { text: "Learn More", href: "learn-more.html" },
+        { text: "Create Memorial", href: "create-memorial.html" }
+    ];
+
+    // Add Dashboard link if logged in
+    if (isLoggedIn) {
+        navLinks.push({ text: "Dashboard", href: "dashboard.html" });
+    }
+
+    navLinks.forEach(link => {
+        const li = document.createElement("li");
+        li.className = "nav-item";
+
+        const a = document.createElement("a");
+        a.className = "nav-link";
+        a.href = link.href;
+        a.textContent = link.text;
+
+        li.appendChild(a);
+        navList.appendChild(li);
+    });
+
+    // Auth button - Login or Sign Out
     const navButton = document.createElement("a");
+    navButton.className = "btn btn-primary ms-2";
 
     if (isLoggedIn) {
-        if (isDashboardPage) {
-            // On dashboard page: show "Sign Out" button
-            navButton.textContent = "Sign Out";
-            navButton.href = "#";
-            navButton.className = "btn btn-outline-secondary";
-            navButton.addEventListener("click", (e) => {
-                e.preventDefault();
-                localStorage.removeItem("authToken");
-                localStorage.removeItem("user");
-                window.location.href = "index.html";
-            });
-        } else {
-            // On other pages when logged in: show "Dashboard" button
-            navButton.textContent = "Dashboard";
-            navButton.href = "dashboard.html";
-            navButton.className = "btn btn-primary";
-        }
+        // Logged in: show "Sign Out" button
+        navButton.textContent = "Sign Out";
+        navButton.href = "#";
+        navButton.addEventListener("click", (e) => {
+            e.preventDefault();
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("user");
+            window.location.href = "index.html";
+        });
     } else {
         // Not logged in: show "Login" button
         navButton.textContent = "Login";
         navButton.href = "login.html";
-        navButton.className = "btn btn-primary";
     }
 
-    collapseDiv.appendChild(form);
+    collapseDiv.appendChild(navList);
     collapseDiv.appendChild(navButton);
     container.appendChild(brandLink);
     container.appendChild(toggler);
