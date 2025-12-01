@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", async function() {
     // Check authentication
     const user = authStorage.getUser();
     const token = authStorage.getToken();
@@ -55,75 +55,200 @@ document.addEventListener("DOMContentLoaded", function() {
     // Show requests table by default
     showTable("requests");
 
-    // Populate tables with sample data based on role
-    populateTables(isAdmin);
+    // Fetch and populate tables with real data
+    await loadDashboardData(isAdmin, token);
 });
 
-function populateTables(isAdmin) {
-    // Sample data for requests
-    const requestData = [
-        { id: "11111", name: "Johnny Bravo", submittedBy: "friendofjohnny@hotmail.com", submitted: "2d ago", status: "Pending" },
-        { id: "22222", name: "Macro Polo", submittedBy: "sailer1254@gmail.com", submitted: "3d ago", status: "Pending" }
-    ];
+async function loadDashboardData(isAdmin, token) {
+    const spinner = document.getElementById("loadingSpinner");
+    const content = document.getElementById("dashboardContent");
 
-    const publishedData = [
-        { id: "33333", name: "Steve", submittedBy: "mine@cox.com", submitted: "5d ago", status: "Published" }
-    ];
+    try {
+        // Show loading spinner
+        spinner.classList.remove("d-none");
+        content.style.opacity = "0.5";
 
-    const draftsData = [
-        { id: "55555", name: "Philip J. Fry", draftedBy: "futureman@cox.com", drafted: "365000 ago" }
-    ];
+        let memorials = [];
 
-    // Populate requests table
-    const requestTbody = document.getElementById("request-tbody");
-    requestTbody.innerHTML = requestData.map(item => `
+        // Fetch memorials based on role
+        if (isAdmin) {
+            // Admin sees all memorials
+            const response = await memorialAPI.getAll(token, true);
+            memorials = response.memorials || [];
+        } else {
+            // Regular user sees only their own memorials
+            const response = await memorialAPI.getSelf(token);
+            memorials = response.memorials || [];
+        }
+
+        // Categorize memorials
+        const pending = memorials.filter(m => !m.approved);
+        const published = memorials.filter(m => m.approved);
+        const drafts = []; // No draft functionality yet
+
+        // Update stats if admin
+        if (isAdmin) {
+            updateStats(pending.length, published.length, drafts.length);
+        }
+
+        // Populate tables
+        populateRequestsTable(pending, isAdmin, token);
+        populatePublishedTable(published, isAdmin, token);
+        populateDraftsTable(drafts, isAdmin, token);
+
+        // Hide loading spinner
+        spinner.classList.add("d-none");
+        content.style.opacity = "1";
+
+    } catch (error) {
+        console.error("Failed to load dashboard data:", error);
+        spinner.classList.add("d-none");
+        content.style.opacity = "1";
+        showError("Failed to load memorial data. Please try again.");
+    }
+}
+
+function updateStats(pendingCount, publishedCount, draftsCount) {
+    const statsTable = document.querySelector("#admin-stats tbody tr");
+    if (statsTable) {
+        statsTable.innerHTML = `
+            <td>${pendingCount}</td>
+            <td>${publishedCount}</td>
+            <td>${draftsCount}</td>
+        `;
+    }
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
+    if (diffDays < 365) return `${Math.floor(diffDays / 30)}mo ago`;
+    return `${Math.floor(diffDays / 365)}y ago`;
+}
+
+function getFullName(memorial) {
+    const name = memorial.name;
+    let fullName = `${name.first} `;
+    if (name.middle) fullName += `${name.middle} `;
+    fullName += name.last;
+    if (name.suffix) fullName += ` ${name.suffix}`;
+    return fullName;
+}
+
+function populateRequestsTable(memorials, isAdmin, token) {
+    const tbody = document.getElementById("request-tbody");
+
+    if (memorials.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">No pending requests</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = memorials.map(memorial => `
         <tr class="align-middle">
-            <td>${item.id}</td>
-            <td>${item.name}</td>
-            <td>${item.submittedBy}</td>
-            <td>${item.submitted}</td>
-            <td>${item.status}</td>
+            <td>${memorial._id.slice(-5)}</td>
+            <td>${getFullName(memorial)}</td>
+            <td>${memorial.createdBy}</td>
+            <td>${formatDate(memorial.createdAt)}</td>
+            <td><span class="badge bg-warning text-dark">Pending</span></td>
             <td>
                 ${isAdmin
-                    ? `<button class="btn btn-sm btn-light rounded-pill px-3 me-2">Review</button>
-                       <button class="btn btn-sm btn-danger rounded-pill px-3">Reject</button>`
-                    : `<button class="btn btn-sm btn-light rounded-pill px-3 me-2">Edit</button>
-                       <button class="btn btn-sm btn-danger rounded-pill px-3">Remove</button>`
-                }
-            </td>
-        </tr>
-    `).join('');
-
-    // Populate published table
-    const publishedTbody = document.getElementById("published-tbody");
-    publishedTbody.innerHTML = publishedData.map(item => `
-        <tr class="align-middle">
-            <td>${item.id}</td>
-            <td>${item.name}</td>
-            <td>${item.submittedBy}</td>
-            <td>${item.submitted}</td>
-            <td>${item.status}</td>
-            <td>
-                <button class="btn btn-sm btn-danger rounded-pill px-3">Remove</button>
-            </td>
-        </tr>
-    `).join('');
-
-    // Populate drafts table
-    const draftsTbody = document.getElementById("drafts-tbody");
-    draftsTbody.innerHTML = draftsData.map(item => `
-        <tr class="align-middle">
-            <td>${item.id}</td>
-            <td>${item.name}</td>
-            <td>${item.draftedBy}</td>
-            <td>${item.drafted}</td>
-            <td>
-                ${isAdmin
-                    ? `<button class="btn btn-sm btn-danger rounded-pill px-3">Remove</button>`
-                    : `<button class="btn btn-sm btn-light rounded-pill px-3 me-2">Edit</button>
-                       <button class="btn btn-sm btn-danger rounded-pill px-3">Remove</button>`
+                    ? `<button class="btn btn-sm btn-success rounded-pill px-3 me-2" onclick="approveMemorial('${memorial._id}')">Approve</button>
+                       <button class="btn btn-sm btn-danger rounded-pill px-3" onclick="rejectMemorial('${memorial._id}')">Reject</button>`
+                    : `<button class="btn btn-sm btn-light rounded-pill px-3 me-2" onclick="editMemorial('${memorial._id}')">Edit</button>
+                       <button class="btn btn-sm btn-danger rounded-pill px-3" onclick="deleteMemorial('${memorial._id}')">Remove</button>`
                 }
             </td>
         </tr>
     `).join('');
 }
+
+function populatePublishedTable(memorials, isAdmin, token) {
+    const tbody = document.getElementById("published-tbody");
+
+    if (memorials.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">No published memorials</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = memorials.map(memorial => `
+        <tr class="align-middle">
+            <td>${memorial._id.slice(-5)}</td>
+            <td>${getFullName(memorial)}</td>
+            <td>${memorial.createdBy}</td>
+            <td>${formatDate(memorial.publishedAt || memorial.createdAt)}</td>
+            <td><span class="badge bg-success">Published</span></td>
+            <td>
+                <button class="btn btn-sm btn-danger rounded-pill px-3" onclick="deleteMemorial('${memorial._id}', ${isAdmin})">Remove</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function populateDraftsTable(memorials, isAdmin, token) {
+    const tbody = document.getElementById("drafts-tbody");
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">No drafts</td></tr>';
+}
+
+function showError(message) {
+    const errorAlert = document.getElementById("errorAlert");
+    const errorMessage = document.getElementById("errorMessage");
+
+    errorMessage.textContent = message;
+    errorAlert.classList.remove("d-none");
+
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        errorAlert.classList.add("d-none");
+    }, 5000);
+}
+
+// Global functions for button actions
+window.approveMemorial = async function(memorialId) {
+    const token = authStorage.getToken();
+    try {
+        await memorialAPI.updateApproval(memorialId, true, token);
+        location.reload(); // Reload to refresh data
+    } catch (error) {
+        showError("Failed to approve memorial");
+    }
+};
+
+window.rejectMemorial = async function(memorialId) {
+    const token = authStorage.getToken();
+    const user = authStorage.getUser();
+    if (!confirm("Are you sure you want to reject this memorial?")) return;
+
+    try {
+        await memorialAPI.deleteAdmin(memorialId, token);
+        location.reload(); // Reload to refresh data
+    } catch (error) {
+        showError("Failed to reject memorial");
+    }
+};
+
+window.editMemorial = function(memorialId) {
+    window.location.href = `create-memorial.html?edit=${memorialId}`;
+};
+
+window.deleteMemorial = async function(memorialId, isAdmin = false) {
+    if (!confirm("Are you sure you want to delete this memorial?")) return;
+
+    const token = authStorage.getToken();
+    try {
+        if (isAdmin) {
+            await memorialAPI.deleteAdmin(memorialId, token);
+        } else {
+            await memorialAPI.deleteSelf(memorialId, token);
+        }
+        location.reload(); // Reload to refresh data
+    } catch (error) {
+        showError("Failed to delete memorial");
+    }
+};

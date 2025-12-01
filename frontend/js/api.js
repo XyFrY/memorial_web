@@ -62,7 +62,7 @@ const authAPI = {
 // All memorial-related API calls (get, create, update, delete).
 const memorialAPI = {
     // Fetch all memorials from the database. Token is optional.
-    async getAll(token = null) {
+    async getAll(token = null, includeUnapproved = false) {
         try {
             const headers = {
                 "Content-Type": "application/json",
@@ -72,7 +72,11 @@ const memorialAPI = {
                 headers.Authorization = `Bearer ${token}`;
             }
 
-            const response = await fetch(`${API_BASE_URL}/memorials`, {
+            const url = includeUnapproved
+                ? `${API_BASE_URL}/memorials?includeUnapproved=true`
+                : `${API_BASE_URL}/memorials`;
+
+            const response = await fetch(url, {
                 method: "GET",
                 headers: headers,
             });
@@ -83,6 +87,53 @@ const memorialAPI = {
             return data;
         } catch (error) {
             console.error("Get memorials API error:", error);
+            throw error;
+        }
+    },
+
+    // Fetch memorials created by the logged-in user. Requires authentication.
+    async getSelf(token) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/memorials/self`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const data = await response.json();
+            handleAPIError(null, response, data);
+
+            return data;
+        } catch (error) {
+            console.error("Get user memorials API error:", error);
+            throw error;
+        }
+    },
+
+    // Fetch a single memorial by ID. Token is optional.
+    async getById(memorialId, token = null) {
+        try {
+            const headers = {
+                "Content-Type": "application/json",
+            };
+
+            if (token) {
+                headers.Authorization = `Bearer ${token}`;
+            }
+
+            const response = await fetch(`${API_BASE_URL}/memorials/${memorialId}`, {
+                method: "GET",
+                headers: headers,
+            });
+
+            const data = await response.json();
+            handleAPIError(null, response, data);
+
+            return data;
+        } catch (error) {
+            console.error("Get memorial by ID API error:", error);
             throw error;
         }
     },
@@ -105,6 +156,92 @@ const memorialAPI = {
             return data;
         } catch (error) {
             console.error("Create memorial API error:", error);
+            throw error;
+        }
+    },
+
+    // Update a memorial (user updates their own). Requires authentication.
+    async updateSelf(memorialId, memorialData, token) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/memorials/${memorialId}/self`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(memorialData),
+            });
+
+            const data = await response.json();
+            handleAPIError(null, response, data);
+
+            return data;
+        } catch (error) {
+            console.error("Update memorial API error:", error);
+            throw error;
+        }
+    },
+
+    // Delete a memorial (user deletes their own). Requires authentication.
+    async deleteSelf(memorialId, token) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/memorials/${memorialId}/self`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const data = await response.json();
+            handleAPIError(null, response, data);
+
+            return data;
+        } catch (error) {
+            console.error("Delete memorial API error:", error);
+            throw error;
+        }
+    },
+
+    // Approve or reject a memorial (admin only). Requires admin authentication.
+    async updateApproval(memorialId, approved, token) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/memorials/${memorialId}/approval`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ approved }),
+            });
+
+            const data = await response.json();
+            handleAPIError(null, response, data);
+
+            return data;
+        } catch (error) {
+            console.error("Update approval API error:", error);
+            throw error;
+        }
+    },
+
+    // Delete any memorial (admin only). Requires admin authentication.
+    async deleteAdmin(memorialId, token) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/memorials/${memorialId}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const data = await response.json();
+            handleAPIError(null, response, data);
+
+            return data;
+        } catch (error) {
+            console.error("Delete memorial API error:", error);
             throw error;
         }
     },
