@@ -40,11 +40,15 @@ document.addEventListener("DOMContentLoaded", async function() {
         Object.values(tables).forEach(table => table.style.display = "none");
 
         // Remove active class from all buttons
-        Object.values(buttons).forEach(btn => btn.classList.remove("btn-dark"));
+        Object.values(buttons).forEach(btn => {
+            btn.classList.remove("btn-primary");
+            btn.classList.add("btn-outline-primary");
+        });
 
         // Show selected table and highlight button
         tables[name].style.display = "block";
-        buttons[name].classList.add("btn-dark");
+        buttons[name].classList.remove("btn-outline-primary");
+        buttons[name].classList.add("btn-primary");
     }
 
     // Add event listeners to buttons
@@ -159,10 +163,10 @@ function populateRequestsTable(memorials, isAdmin, token) {
             <td><span class="badge bg-warning text-dark">Pending</span></td>
             <td>
                 ${isAdmin
-                    ? `<button class="btn btn-sm btn-success rounded-pill px-3 me-2" onclick="approveMemorial('${memorial._id}')">Approve</button>
-                       <button class="btn btn-sm btn-danger rounded-pill px-3" onclick="rejectMemorial('${memorial._id}')">Reject</button>`
-                    : `<button class="btn btn-sm btn-light rounded-pill px-3 me-2" onclick="editMemorial('${memorial._id}')">Edit</button>
-                       <button class="btn btn-sm btn-danger rounded-pill px-3" onclick="deleteMemorial('${memorial._id}')">Remove</button>`
+                    ? `<button class="btn btn-sm btn-success me-2" onclick="approveMemorial('${memorial._id}')">Approve</button>
+                       <button class="btn btn-sm btn-danger" onclick="rejectMemorial('${memorial._id}')">Reject</button>`
+                    : `<button class="btn btn-sm btn-outline-secondary me-2" onclick="editMemorial('${memorial._id}')">Edit</button>
+                       <button class="btn btn-sm btn-outline-danger" onclick="deleteMemorial('${memorial._id}')">Remove</button>`
                 }
             </td>
         </tr>
@@ -185,7 +189,7 @@ function populatePublishedTable(memorials, isAdmin, token) {
             <td>${formatDate(memorial.publishedAt || memorial.createdAt)}</td>
             <td><span class="badge bg-success">Published</span></td>
             <td>
-                <button class="btn btn-sm btn-danger rounded-pill px-3" onclick="deleteMemorial('${memorial._id}', ${isAdmin})">Remove</button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteMemorial('${memorial._id}', ${isAdmin})">Remove</button>
             </td>
         </tr>
     `).join('');

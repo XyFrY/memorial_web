@@ -37,12 +37,12 @@
         <!-- Memorial Content -->
         <div id="memorialContent">
             <!-- Memorial Picture and Description -->
-            <div class = "container col-xxl px-4 py-5">
-                <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
+            <div class="container py-5">
+                <div class="row flex-lg-row-reverse align-items-center g-5">
                     <div class="col-10 col-sm-8 col-lg-6">
-                        <div class="card">
-                            <h4>Key Facts</h4>
-                            <div class="list-group shadow">
+                        <div class="card shadow-sm p-4">
+                            <h4 class="mb-3">Key Facts</h4>
+                            <div class="list-group">
                                 <div class="list-group-item d-flex gap-3 py-3">
                                     <img src="frontend/images/calender.jpeg" width="36" height="32" class="flex-shrink-0">
                                     <div class="d-flex gap-2 w-100 justify-content-between">
@@ -85,19 +85,21 @@
                     </div>
 
                     <div class="col-lg-6">
-                        <h2 id="memorialName">Loading...</h2>
-                        <p id="memorialYears">???? - ????</p>
+                        <h2 class="fw-bold" id="memorialName">Loading...</h2>
+                        <p class="text-muted" id="memorialYears">???? - ????</p>
                         <img id="memorialImage" src="frontend/images/placeholderimg.jpg" alt="Memorial Image"
-                        class="d-block mx-lg-auto img-fluid shadow" width= "450" height="650">
+                        class="d-block mx-lg-auto img-fluid shadow-sm rounded" width= "450" height="650">
 
                     </div>
                 </div>
             </div>
 
             <!-- Biography -->
-            <div class="container" style="margin-bottom: 50px;">
-                <h2>Biography</h2>
-                <p id="biography">Loading biography...</p>
+            <div class="container py-5">
+                <div class="card shadow-sm p-4">
+                    <h2 class="fw-bold mb-4">Biography</h2>
+                    <p id="biography">Loading biography...</p>
+                </div>
             </div>
         </div>
 
