@@ -86,6 +86,34 @@ document.addEventListener("DOMContentLoaded", () => {
     populateStateDropdowns();
     populateSuffixDropdown();
 
+    // Image preview functionality
+    const imageInput = document.getElementById("memorialImage");
+    const imagePreview = document.getElementById("imagePreview");
+    const previewImg = document.getElementById("previewImg");
+
+    imageInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showError("Image file is too large. Maximum size is 5MB.");
+                imageInput.value = "";
+                imagePreview.classList.add("d-none");
+                return;
+            }
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                imagePreview.classList.remove("d-none");
+            };
+            reader.readAsDataURL(file);
+        } else {
+            imagePreview.classList.add("d-none");
+        }
+    });
+
     memorialForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         hideAlerts();
@@ -107,6 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const birthState = document.getElementById("birthState").value;
         const deathCity = document.getElementById("deathCity").value.trim();
         const deathState = document.getElementById("deathState").value;
+        const imageFile = document.getElementById("memorialImage").files[0];
 
         // Validate required fields.
         if (!firstName || !lastName || !birthDate || !deathDate || !biography) {
@@ -150,8 +179,18 @@ document.addEventListener("DOMContentLoaded", () => {
         submitButton.textContent = "Creating memorial...";
 
         try {
-            // Get the auth token and send the memorial data to the API.
+            // Get the auth token
             const token = authStorage.getToken();
+
+            // Upload image first if one was selected
+            if (imageFile) {
+                submitButton.textContent = "Uploading image...";
+                const uploadResponse = await uploadAPI.uploadImage(imageFile, token);
+                memorialData.imageUrl = uploadResponse.imageUrl;
+            }
+
+            // Create the memorial with the data (including image URL if uploaded)
+            submitButton.textContent = "Creating memorial...";
             const response = await memorialAPI.create(memorialData, token);
 
             // Show success message and reset the form.

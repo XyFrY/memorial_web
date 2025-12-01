@@ -278,7 +278,35 @@ const authStorage = {
     },
 };
 
+// Image upload API
+const uploadAPI = {
+    // Upload an image file and return the image URL
+    async uploadImage(imageFile, token) {
+        try {
+            const formData = new FormData();
+            formData.append('image', imageFile);
+
+            const response = await fetch(`${API_BASE_URL}/upload/image`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: formData,
+            });
+
+            const data = await response.json();
+            handleAPIError(null, response, data);
+
+            return data;
+        } catch (error) {
+            console.error("Image upload API error:", error);
+            throw error;
+        }
+    },
+};
+
 // Make the API modules available globally so they can be used in any script.
 window.authAPI = authAPI;
 window.memorialAPI = memorialAPI;
 window.authStorage = authStorage;
+window.uploadAPI = uploadAPI;
