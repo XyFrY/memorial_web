@@ -1,6 +1,4 @@
-// Memorial creation page handler - validates and submits memorial data to the database.
 
-// US state codes for the state dropdown.
 const US_STATES = [
     'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
     'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
@@ -9,7 +7,6 @@ const US_STATES = [
     'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
 ];
 
-// Valid name suffixes.
 const NAME_SUFFIXES = ['Jr.', 'Sr.', 'II', 'III', 'IV', 'V'];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -21,7 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const successAlert = document.getElementById("successAlert");
     const successMessage = document.getElementById("successMessage");
 
-    // Populate the state dropdowns with all US states.
     function populateStateDropdowns() {
         const birthStateSelect = document.getElementById("birthState");
         const deathStateSelect = document.getElementById("deathState");
@@ -39,7 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Populate the suffix dropdown with valid name suffixes.
     function populateSuffixDropdown() {
         const suffixSelect = document.getElementById("nameSuffix");
 
@@ -51,7 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Display an error message at the top of the form and scroll so the user can see it.
     function showError(message) {
         errorMessage.textContent = message;
         errorAlert.classList.remove("d-none");
@@ -59,7 +53,6 @@ document.addEventListener("DOMContentLoaded", () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    // Display a success message at the top of the form.
     function showSuccess(message) {
         successMessage.textContent = message;
         successAlert.classList.remove("d-none");
@@ -67,13 +60,11 @@ document.addEventListener("DOMContentLoaded", () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    // Hide both error and success alerts.
     function hideAlerts() {
         errorAlert.classList.add("d-none");
         successAlert.classList.add("d-none");
     }
 
-    // Check if the user is logged in before allowing memorial submission.
     function checkAuthentication() {
         if (!authStorage.isAuthenticated()) {
             showError("You need to be logged in to create a memorial. Please log in first.");
@@ -82,11 +73,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return true;
     }
 
-    // Initialize dropdowns when the page loads.
     populateStateDropdowns();
     populateSuffixDropdown();
 
-    // Image preview functionality
     const imageInput = document.getElementById("memorialImage");
     const imagePreview = document.getElementById("imagePreview");
     const previewImg = document.getElementById("previewImg");
@@ -94,7 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
     imageInput.addEventListener("change", (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Validate file size (5MB)
             if (file.size > 5 * 1024 * 1024) {
                 showError("Image file is too large. Maximum size is 5MB.");
                 imageInput.value = "";
@@ -102,7 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // Show preview
             const reader = new FileReader();
             reader.onload = function(e) {
                 previewImg.src = e.target.result;
@@ -118,12 +105,10 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         hideAlerts();
 
-        // Make sure the user is logged in before submitting.
         if (!checkAuthentication()) {
             return;
         }
 
-        // Collect all form data.
         const firstName = document.getElementById("firstName").value.trim();
         const middleName = document.getElementById("middleName").value.trim();
         const lastName = document.getElementById("lastName").value.trim();
@@ -137,13 +122,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const deathState = document.getElementById("deathState").value;
         const imageFile = document.getElementById("memorialImage").files[0];
 
-        // Validate required fields.
         if (!firstName || !lastName || !birthDate || !deathDate || !biography) {
             showError("Please fill in all required fields.");
             return;
         }
 
-        // Build the memorial data object to send to the API.
         const memorialData = {
             name: {
                 first: firstName,
@@ -156,7 +139,6 @@ document.addEventListener("DOMContentLoaded", () => {
             biography
         };
 
-        // Add birth location if either city or state is provided.
         if (birthCity || birthState) {
             memorialData.birthLocation = {
                 city: birthCity || undefined,
@@ -164,7 +146,6 @@ document.addEventListener("DOMContentLoaded", () => {
             };
         }
 
-        // Add death location if either city or state is provided.
         if (deathCity || deathState) {
             memorialData.deathLocation = {
                 city: deathCity || undefined,
@@ -172,35 +153,28 @@ document.addEventListener("DOMContentLoaded", () => {
             };
         }
 
-        // Disable the submit button while creating the memorial to prevent duplicate submissions.
         const submitButton = memorialForm.querySelector('button[type="submit"]');
         const originalButtonText = submitButton.textContent;
         submitButton.disabled = true;
         submitButton.textContent = "Creating memorial...";
 
         try {
-            // Get the auth token
             const token = authStorage.getToken();
 
-            // Upload image first if one was selected
             if (imageFile) {
                 submitButton.textContent = "Uploading image...";
                 const uploadResponse = await uploadAPI.uploadImage(imageFile, token);
                 memorialData.imageUrl = uploadResponse.imageUrl;
             }
 
-            // Create the memorial with the data (including image URL if uploaded)
             submitButton.textContent = "Creating memorial...";
             const response = await memorialAPI.create(memorialData, token);
 
-            // Show success message and reset the form.
             showSuccess("Memorial created successfully! It will be reviewed by our team before being published.");
             memorialForm.reset();
         } catch (error) {
-            // Show error message if something went wrong.
             showError(error.message || "Failed to create memorial. Please try again.");
         } finally {
-            // Re-enable the submit button.
             submitButton.disabled = false;
             submitButton.textContent = originalButtonText;
         }

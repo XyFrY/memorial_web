@@ -1,4 +1,3 @@
-// Index page handler - fetches and displays approved memorials from the database.
 
 document.addEventListener("DOMContentLoaded", async () => {
     const memorialsContainer = document.getElementById("memorialsContainer");
@@ -6,7 +5,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const errorAlert = document.getElementById("errorAlert");
     const errorMessage = document.getElementById("errorMessage");
 
-    // Format a date as a readable string (e.g., "January 15, 1950")
     function formatDate(dateString) {
         const date = new Date(dateString);
         return date.toLocaleDateString("en-US", {
@@ -16,7 +14,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // Build the full name from the name object, including middle name and suffix if present.
     function getFullName(name) {
         let fullName = name.first;
         if (name.middle) {
@@ -29,7 +26,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         return fullName;
     }
 
-    // Format a location object as "City, State" or just "State" if no city.
     function formatLocation(location) {
         if (!location) return "";
         if (location.city && location.state) {
@@ -40,7 +36,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         return "";
     }
 
-    // Calculate age at death from birth and death dates.
     function calculateAge(birthDate, deathDate) {
         const birth = new Date(birthDate);
         const death = new Date(deathDate);
@@ -55,13 +50,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         return age;
     }
 
-    // Truncate biography text to a certain number of characters and add ellipsis.
     function truncateText(text, maxLength = 150) {
         if (text.length <= maxLength) return text;
         return text.substring(0, maxLength).trim() + "...";
     }
 
-    // Create a memorial card element to display in the grid.
     function createMemorialCard(memorial) {
         const fullName = getFullName(memorial.name);
         const birthLocation = formatLocation(memorial.birthLocation);
@@ -72,7 +65,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const col = document.createElement("div");
         col.className = "col";
 
-        // Use memorial image or placeholder
         const imageUrl = memorial.imageUrl || 'frontend/images/placeholderimg.jpg';
 
         col.innerHTML = `
@@ -108,34 +100,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         return col;
     }
 
-    // Show error message to the user.
     function showError(message) {
         errorMessage.textContent = message;
         errorAlert.classList.remove("d-none");
     }
 
-    // Hide error message.
     function hideError() {
         errorAlert.classList.add("d-none");
     }
 
-    // Show loading spinner.
     function showLoading() {
         loadingSpinner.classList.remove("d-none");
     }
 
-    // Hide loading spinner.
     function hideLoading() {
         loadingSpinner.classList.add("d-none");
     }
 
-    // Fetch and display all approved memorials.
     async function loadMemorials() {
         try {
             showLoading();
             hideError();
 
-            // Fetch memorials from the API (no token needed for public memorials)
             const data = await memorialAPI.getAll();
 
             hideLoading();
@@ -155,7 +141,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 return;
             }
 
-            // Clear the container and add each memorial card.
             memorialsContainer.innerHTML = "";
             data.memorials.forEach((memorial) => {
                 const card = createMemorialCard(memorial);
@@ -171,6 +156,5 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    // Load memorials when the page loads.
     loadMemorials();
 });

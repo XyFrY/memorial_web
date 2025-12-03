@@ -1,15 +1,16 @@
-// Navigation bar component that works across all pages of the site.
 document.addEventListener("DOMContentLoaded", () => {
-    const navbarContainer = document.getElementById("navbar") || document.getElementById("index-navbar");
+    const navbarContainer =
+        document.getElementById("navbar") ||
+        document.getElementById("index-navbar");
     if (!navbarContainer) return;
 
     const nav = document.createElement("nav");
-    nav.className = "navbar navbar-expand-lg navbar-light bg-body-tertiary shadow-sm";
+    nav.className =
+        "navbar navbar-expand-lg navbar-light bg-body-tertiary shadow-sm";
 
     const container = document.createElement("div");
     container.className = "container-fluid";
 
-    // Brand Link Logo and Text
     const brandLink = document.createElement("a");
     brandLink.className = "navbar-brand d-flex align-items-center";
     brandLink.href = "index.html";
@@ -44,26 +45,23 @@ document.addEventListener("DOMContentLoaded", () => {
     collapseDiv.className = "collapse navbar-collapse";
     collapseDiv.id = "navbarNav";
 
-    // Check if user is logged in
     const token = localStorage.getItem("authToken");
     const isLoggedIn = !!token;
 
-    // Navigation links
     const navList = document.createElement("ul");
     navList.className = "navbar-nav ms-auto mb-2 mb-lg-0";
 
     const navLinks = [
         { text: "Home", href: "index.html" },
         { text: "Learn More", href: "learn-more.html" },
-        { text: "Create Memorial", href: "create-memorial.html" }
+        { text: "Create Memorial", href: "create-memorial.html" },
     ];
 
-    // Add Dashboard link if logged in
     if (isLoggedIn) {
         navLinks.push({ text: "Dashboard", href: "dashboard.html" });
     }
 
-    navLinks.forEach(link => {
+    navLinks.forEach((link) => {
         const li = document.createElement("li");
         li.className = "nav-item";
 
@@ -76,12 +74,10 @@ document.addEventListener("DOMContentLoaded", () => {
         navList.appendChild(li);
     });
 
-    // Auth button - Login or Sign Out
     const navButton = document.createElement("a");
     navButton.className = "btn btn-primary ms-2";
 
     if (isLoggedIn) {
-        // Logged in: show "Sign Out" button
         navButton.textContent = "Sign Out";
         navButton.href = "#";
         navButton.addEventListener("click", (e) => {
@@ -91,7 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = "index.html";
         });
     } else {
-        // Not logged in: show "Login" button
         navButton.textContent = "Login";
         navButton.href = "login.html";
     }
@@ -104,4 +99,3 @@ document.addEventListener("DOMContentLoaded", () => {
     nav.appendChild(container);
     navbarContainer.appendChild(nav);
 });
-

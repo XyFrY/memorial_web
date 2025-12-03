@@ -5,7 +5,6 @@ const {
 } = require('../utils/parsing');
 const Memorial = require('../models/memorial');
 
-// Validate a person's name object with first, middle, last, and suffix fields.
 function validateName(name) {
     if (!name || typeof name !== 'object') {
         return { error: 'name must be an object with first and last fields' };
@@ -42,7 +41,6 @@ function validateName(name) {
     };
 }
 
-// Validate a location object with optional city and state fields.
 function validateLocation(location, fieldName) {
     if (!location || typeof location !== 'object') {
         return {
@@ -69,7 +67,6 @@ function validateLocation(location, fieldName) {
     };
 }
 
-// Validate a US state code against the list of valid state abbreviations.
 function validateState(state) {
     if (!state || typeof state !== 'string') {
         return { error: 'state is required' };
@@ -84,7 +81,6 @@ function validateState(state) {
     return { value: normalized };
 }
 
-// Parse and validate a memorial request body, returning any validation errors and the sanitized data to save.
 function parseMemorialPayload(body, { requireAllFields = false } = {}) {
     if (!body || typeof body !== 'object') {
         return {
@@ -99,7 +95,6 @@ function parseMemorialPayload(body, { requireAllFields = false } = {}) {
     const updates = {};
     const unsetFields = [];
 
-    // Helper functions to check whether fields exist and whether they're required for this request.
     const hasField = (field) => field in body;
     const checkRequired = (field, label) => {
         if (requireAllFields && !hasField(field)) {
@@ -109,7 +104,6 @@ function parseMemorialPayload(body, { requireAllFields = false } = {}) {
         return hasField(field);
     };
 
-    // Validate name
     if (checkRequired('name', 'name')) {
         const { error, value } = validateName(body.name);
         if (error) {
@@ -119,7 +113,6 @@ function parseMemorialPayload(body, { requireAllFields = false } = {}) {
         }
     }
 
-    // Validate biography
     if (checkRequired('biography', 'biography')) {
         if (!isNonEmptyString(body.biography)) {
             errors.push('biography is required');
@@ -128,7 +121,6 @@ function parseMemorialPayload(body, { requireAllFields = false } = {}) {
         }
     }
 
-    // Validate dates - both birth and death dates are required and must be parseable as valid Date objects.
     for (const dateField of ['birthDate', 'deathDate']) {
         if (checkRequired(dateField, dateField)) {
             const value = body[dateField];
@@ -145,7 +137,6 @@ function parseMemorialPayload(body, { requireAllFields = false } = {}) {
         }
     }
 
-    // Validate imageUrl (optional) - if provided as an empty value, we mark it for removal from the database.
     if (hasField('imageUrl')) {
         if (!body.imageUrl || !String(body.imageUrl).trim()) {
             unsetFields.push('imageUrl');
@@ -156,7 +147,6 @@ function parseMemorialPayload(body, { requireAllFields = false } = {}) {
         }
     }
 
-    // Validate locations (optional) - birth and death locations have city/state fields that must pass validation if provided.
     for (const locationField of ['birthLocation', 'deathLocation']) {
         if (hasField(locationField)) {
             const value = body[locationField];
@@ -179,7 +169,6 @@ function parseMemorialPayload(body, { requireAllFields = false } = {}) {
         }
     }
 
-    // Validate approved (admin only) - only admins can set this field, but we still parse it here for validation.
     if (hasField('approved')) {
         const parsed = parseBoolean(body.approved);
         if (typeof parsed !== 'boolean') {
@@ -189,7 +178,6 @@ function parseMemorialPayload(body, { requireAllFields = false } = {}) {
         }
     }
 
-    // Check if any changes were actually provided in the request body.
     const hasUpdates =
         Object.keys(updates).length > 0 || unsetFields.length > 0;
 

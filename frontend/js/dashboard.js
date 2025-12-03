@@ -1,27 +1,21 @@
 document.addEventListener("DOMContentLoaded", async function() {
-    // Check authentication
     const user = authStorage.getUser();
     const token = authStorage.getToken();
 
     if (!user || !token) {
-        // Redirect to login if not authenticated
         window.location.href = "login.html";
         return;
     }
 
-    // Check if user is admin
     const isAdmin = user.isAdmin || false;
 
-    // Update dashboard title based on role
     const titleElement = document.getElementById("dashboard-title");
     titleElement.textContent = isAdmin ? "Admin Dashboard" : "My Dashboard";
 
-    // Show admin stats if admin
     if (isAdmin) {
         document.getElementById("admin-stats").style.display = "block";
     }
 
-    // Get UI elements
     const buttons = {
         requests: document.getElementById("request-btn"),
         published: document.getElementById("published-btn"),
@@ -32,31 +26,24 @@ document.addEventListener("DOMContentLoaded", async function() {
         published: document.getElementById("published-table"),
     };
 
-    // Function to switch between tables
     function showTable(name) {
-        // Hide all tables
         Object.values(tables).forEach(table => table.style.display = "none");
 
-        // Remove active class from all buttons
         Object.values(buttons).forEach(btn => {
             btn.classList.remove("btn-primary");
             btn.classList.add("btn-outline-primary");
         });
 
-        // Show selected table and highlight button
         tables[name].style.display = "block";
         buttons[name].classList.remove("btn-outline-primary");
         buttons[name].classList.add("btn-primary");
     }
 
-    // Add event listeners to buttons
     buttons.requests.addEventListener("click", () => showTable("requests"));
     buttons.published.addEventListener("click", () => showTable("published"));
 
-    // Show requests table by default
     showTable("requests");
 
-    // Fetch and populate tables with real data
     await loadDashboardData(isAdmin, token);
 });
 
@@ -65,37 +52,29 @@ async function loadDashboardData(isAdmin, token) {
     const content = document.getElementById("dashboardContent");
 
     try {
-        // Show loading spinner
         spinner.classList.remove("d-none");
         content.style.opacity = "0.5";
 
         let memorials = [];
 
-        // Fetch memorials based on role
         if (isAdmin) {
-            // Admin sees all memorials
             const response = await memorialAPI.getAll(token, true);
             memorials = response.memorials || [];
         } else {
-            // Regular user sees only their own memorials
             const response = await memorialAPI.getSelf(token);
             memorials = response.memorials || [];
         }
 
-        // Categorize memorials
         const pending = memorials.filter(m => !m.approved);
         const published = memorials.filter(m => m.approved);
 
-        // Update stats if admin
         if (isAdmin) {
             updateStats(pending.length, published.length);
         }
 
-        // Populate tables
         populateRequestsTable(pending, isAdmin, token);
         populatePublishedTable(published, isAdmin, token);
 
-        // Hide loading spinner
         spinner.classList.add("d-none");
         content.style.opacity = "1";
 
@@ -202,18 +181,16 @@ function showError(message) {
     errorMessage.textContent = message;
     errorAlert.classList.remove("d-none");
 
-    // Auto-hide after 5 seconds
     setTimeout(() => {
         errorAlert.classList.add("d-none");
     }, 5000);
 }
 
-// Global functions for button actions
 window.approveMemorial = async function(memorialId) {
     const token = authStorage.getToken();
     try {
         await memorialAPI.updateApproval(memorialId, true, token);
-        location.reload(); // Reload to refresh data
+        location.reload();
     } catch (error) {
         showError("Failed to approve memorial");
     }
@@ -226,7 +203,7 @@ window.rejectMemorial = async function(memorialId) {
 
     try {
         await memorialAPI.deleteAdmin(memorialId, token);
-        location.reload(); // Reload to refresh data
+        location.reload();
     } catch (error) {
         showError("Failed to reject memorial");
     }
@@ -242,7 +219,7 @@ window.deleteMemorial = async function(memorialId, isAdmin = false) {
         } else {
             await memorialAPI.deleteSelf(memorialId, token);
         }
-        location.reload(); // Reload to refresh data
+        location.reload();
     } catch (error) {
         showError("Failed to delete memorial");
     }

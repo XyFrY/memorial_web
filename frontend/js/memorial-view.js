@@ -1,7 +1,5 @@
-// Memorial view page - displays a single memorial's details
 
 document.addEventListener("DOMContentLoaded", async function() {
-    // Get memorial ID from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const memorialId = urlParams.get('id');
 
@@ -10,7 +8,6 @@ document.addEventListener("DOMContentLoaded", async function() {
         return;
     }
 
-    // Load the memorial data
     await loadMemorial(memorialId);
 });
 
@@ -19,22 +16,17 @@ async function loadMemorial(memorialId) {
     const content = document.getElementById("memorialContent");
 
     try {
-        // Show loading spinner
         spinner.classList.remove("d-none");
         content.style.opacity = "0.5";
 
-        // Fetch memorial data (with token if available for unapproved memorials)
         const token = authStorage.getToken();
         const response = await memorialAPI.getById(memorialId, token);
         const memorial = response.memorial;
 
-        // Populate the page with memorial data
         populateMemorial(memorial);
 
-        // Update page title
         document.title = `${getFullName(memorial)} - Memorial`;
 
-        // Hide loading spinner
         spinner.classList.add("d-none");
         content.style.opacity = "1";
 
@@ -47,19 +39,15 @@ async function loadMemorial(memorialId) {
 }
 
 function populateMemorial(memorial) {
-    // Name
     document.getElementById("memorialName").textContent = getFullName(memorial);
 
-    // Years
     const birthYear = new Date(memorial.birthDate).getFullYear();
     const deathYear = new Date(memorial.deathDate).getFullYear();
     document.getElementById("memorialYears").textContent = `${birthYear} - ${deathYear}`;
 
-    // Dates
     document.getElementById("birthDate").textContent = formatDate(memorial.birthDate);
     document.getElementById("deathDate").textContent = formatDate(memorial.deathDate);
 
-    // Birth Location
     const birthLocationItem = document.getElementById("birthLocationItem");
     const birthLocationText = document.getElementById("birthLocation");
     if (memorial.birthLocation && (memorial.birthLocation.city || memorial.birthLocation.state)) {
@@ -69,7 +57,6 @@ function populateMemorial(memorial) {
         birthLocationItem.style.display = "none";
     }
 
-    // Death Location
     const deathLocationItem = document.getElementById("deathLocationItem");
     const deathLocationText = document.getElementById("deathLocation");
     if (memorial.deathLocation && (memorial.deathLocation.city || memorial.deathLocation.state)) {
@@ -79,10 +66,8 @@ function populateMemorial(memorial) {
         deathLocationItem.style.display = "none";
     }
 
-    // Biography
     document.getElementById("biography").textContent = memorial.biography;
 
-    // Image
     const imageElement = document.getElementById("memorialImage");
     if (memorial.imageUrl) {
         imageElement.src = memorial.imageUrl;
@@ -126,7 +111,6 @@ function showError(message) {
     errorMessage.textContent = message;
     errorAlert.classList.remove("d-none");
 
-    // Hide memorial content if there's an error
     const content = document.getElementById("memorialContent");
     content.style.display = "none";
 }

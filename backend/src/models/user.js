@@ -1,4 +1,3 @@
-// Import mongoose for database schema definition
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema(
@@ -31,8 +30,6 @@ const userSchema = new mongoose.Schema(
     }
 );
 
-// Create an index on email for fast lookups
 userSchema.index({ email: 1 }, { unique: true });
 
-// Export the User model
 module.exports = mongoose.model('User', userSchema);
