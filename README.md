@@ -2,8 +2,8 @@
 
 Edit the environment variables in .env.example and rename it to .env
 
-Change directory to the backend directory (cd backed)
+Change directory to the backend directory (`cd backed`)
 
-Install dependancies for the backend (npm install)
+Install dependancies for the backend (`npm install`)
 
-Start the backend server (npm start)
+Start the backend server (`npm start`)
